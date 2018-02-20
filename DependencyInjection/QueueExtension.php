@@ -30,18 +30,18 @@ class QueueExtension extends Extension
     /**
      * Loads a specific configuration.
      *
-     * @param array $configs
+     * @param array $config
      * @param ContainerBuilder $container
      *
      * @throws \ReflectionException
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container)
     {
         $configuration = new QueueConfiguration();
 
-        $config = $this->processConfiguration($configuration, $configs);
+        $config = $this->processConfiguration($configuration, $config);
 
-        $jobs = $this->grabJobs($container);
+        $jobs = $this->grabJobs($config, $container);
 
         foreach ($jobs as $job) {
             $definition = new Definition($job);
@@ -68,34 +68,21 @@ class QueueExtension extends Extension
     }
 
     /**
-     * @param ContainerBuilder $container
+     * @param array $config
      *
      * @return array
      *
-     * @throws \ReflectionException
      */
-    private function grabJobs(ContainerBuilder $container): array
+    private function grabJobs(array $config, ContainerBuilder $container): array
     {
         $jobs = [];
-        $path = realpath($container->getParameter('kernel.root_dir') . '/..');
-        $finder = new Finder();
-        $finder->in([$path]);
-        $finder->exclude(['vendor', 'tests', 'Tests', 'Resources']);
-        $finder->name(Glob::toRegex('*.php'));
+        foreach ($config['namespaces'] as $key => $namespace) {
+            $alias = $container->getParameter('kernel.root_dir') . '/../' . str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, '\\'));
 
-        foreach ($finder->files() as $name => $file) {
-            if (false === is_dir($file)) {
-                $className = str_replace(realpath($container->getParameter('kernel.root_dir') . '/..'), '', realpath($file));
-                $className = str_replace('/', '\\', $className);
-                $className = substr($className, 0, -4);
-                try {
-                    if (class_exists($className)) {
-                        $reflect = new \ReflectionClass($className);
-                        if ($reflect->implementsInterface(\SfCod\QueueBundle\Base\JobInterface::class) && !$reflect->isAbstract()) {
-                            $jobs[] = $reflect->getName();
-                        }
-                    }
-                } catch (\RuntimeException $e) {
+            foreach (glob(sprintf('%s/**.php', $alias)) as $file) {
+                $className = sprintf('%s\%s', $namespace, basename($file, '.php'));
+                if (method_exists($className, 'fire')) {
+                    $jobs[] = $className;
                 }
             }
         }

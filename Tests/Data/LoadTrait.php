@@ -30,6 +30,11 @@ trait LoadTrait
 
         $extension->load([
             0 => [
+                'namespaces' => [
+                    'SfCod\QueueBundle\Tests\Data',
+                ],
+            ],
+            1 => [
                 'connections' => [
                     'default' => [
                         'driver' => 'mongo-thread',

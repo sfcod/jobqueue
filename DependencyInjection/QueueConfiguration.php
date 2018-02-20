@@ -39,6 +39,11 @@ class QueueConfiguration implements ConfigurationInterface
     {
         $rootNode
             ->children()
+                ->arrayNode('namespaces')
+                    ->scalarPrototype()->end()
+                ->end()
+            ->end()
+            ->children()
                 ->arrayNode('connections')
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()

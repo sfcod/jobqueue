@@ -8,6 +8,8 @@ Provides Illuminate queues implementation for Symfony (using mongodb as main sto
 sfcod_queue:
     connections:
         default: { driver: 'mongo-thread', collection: 'queue_jobs', connectionName: 'default', queue: 'default', expire: 60, limit: 2 }
+    namespaces:
+        - 'App\Job'        
 ```
 
 #### Adding jobs to queue:
