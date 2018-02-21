@@ -1,6 +1,8 @@
 Job Queue Bundle for Symfony based on Illuminate Queue
 ======================================================
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sfcod/jobqueue/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sfcod/jobqueue/?branch=master)[![Code Climate](https://codeclimate.com/github/sfcod/jobqueue/badges/gpa.svg)](https://codeclimate.com/github/sfcod/jobqueue)
+
 Provides Illuminate queues implementation for Symfony (using mongodb as main storage).
 
 #### Config:
