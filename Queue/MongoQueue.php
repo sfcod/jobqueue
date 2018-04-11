@@ -69,7 +69,8 @@ class MongoQueue extends Queue
                                 string $queue = 'default',
                                 int $expire = 60,
                                 int $limit = 15
-    ) {
+    )
+    {
         $this->collection = $collection;
         $this->expire = $expire;
         $this->queue = $queue;
@@ -274,6 +275,13 @@ class MongoQueue extends Queue
      */
     public function canRunJob(Job $job)
     {
+        if ($job->getQueue()) {
+            return $this->getCollection()->count([
+                    'reserved' => 1,
+                    'queue' => $job->getQueue()
+                ]) < $this->limit || $job->reserved();
+        }
+
         return $this->getCollection()->count(['reserved' => 1]) < $this->limit || $job->reserved();
     }
 
