@@ -7,7 +7,7 @@ use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
 use SfCod\QueueBundle\Handler\ExceptionHandler;
 use SfCod\QueueBundle\Options;
 use SfCod\QueueBundle\Service\JobQueue;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 use SfCod\QueueBundle\Worker;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -64,7 +64,7 @@ class WorkCommand extends ContainerAwareCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $queueManager = $this->getContainer()->get(JobQueue::class)->getQueueManager();
-        $mongo = $this->getContainer()->get(MongoDriver::class);
+        $mongo = $this->getContainer()->get(MongoDriverInterface::class);
 
         $worker = new Worker(
             $queueManager,

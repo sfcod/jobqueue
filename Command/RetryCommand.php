@@ -4,7 +4,7 @@ namespace SfCod\QueueBundle\Command;
 
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
 use SfCod\QueueBundle\Service\JobQueue;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,7 +41,7 @@ class RetryCommand extends ContainerAwareCommand
         $io = new SymfonyStyle($input, $output);
 
         $queue = $this->getContainer()->get(JobQueue::class);
-        $mongo = $this->getContainer()->get(MongoDriver::class);
+        $mongo = $this->getContainer()->get(MongoDriverInterface::class);
         $failer = new MongoFailedJobProvider($mongo, 'queue_jobs_failed');
 
         $jobsCount = 0;

@@ -4,7 +4,7 @@ namespace SfCod\QueueBundle\Connector;
 
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,11 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MongoConnector implements ConnectorInterface
 {
     /**
-     * @var MongoDriver
-     */
-    protected $mongo;
-
-    /**
      * @var ContainerInterface
      */
     protected $container;
@@ -28,12 +23,10 @@ class MongoConnector implements ConnectorInterface
     /**
      * Create a new connector instance.
      *
-     * @param MongoDriver $mongo
      * @param ContainerInterface $container
      */
-    public function __construct(MongoDriver $mongo, ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
-        $this->mongo = $mongo;
         $this->container = $container;
     }
 
@@ -48,9 +41,10 @@ class MongoConnector implements ConnectorInterface
     {
         $config = array_merge([
             'limit' => 15,
+            'connection' => MongoDriverInterface::class,
         ], $config);
 
-        $mongoQueue = new MongoQueue($this->mongo, $config['collection'], $config['queue'], $config['expire'], $config['limit']);
+        $mongoQueue = new MongoQueue($this->container->get($config['connection']), $config['collection'], $config['queue'], $config['expire'], $config['limit']);
         $mongoQueue->putContainer($this->container);
 
         return $mongoQueue;

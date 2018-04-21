@@ -50,7 +50,7 @@ class QueueConfiguration implements ConfigurationInterface
                         ->children()
                             ->scalarNode('driver')->end()
                             ->scalarNode('collection')->end()
-                            ->scalarNode('connectionName')->end()
+                            ->scalarNode('connection')->end()
                             ->scalarNode('queue')->end()
                             ->scalarNode('expire')->end()
                             ->scalarNode('limit')->end()

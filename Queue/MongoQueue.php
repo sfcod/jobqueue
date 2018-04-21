@@ -10,7 +10,7 @@ use Illuminate\Queue\Queue;
 use MongoDB\Collection;
 use SfCod\QueueBundle\Base\Job;
 use SfCod\QueueBundle\Job\MongoJob;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -58,13 +58,13 @@ class MongoQueue extends Queue
     /**
      * Create a new mongo queue instance.
      *
-     * @param MongoDriver $mongo
+     * @param MongoDriverInterface $mongo
      * @param string $collection
      * @param string $queue
      * @param int $expire
      * @param int $limit
      */
-    public function __construct(MongoDriver $mongo,
+    public function __construct(MongoDriverInterface $mongo,
                                 string $collection,
                                 string $queue = 'default',
                                 int $expire = 60,

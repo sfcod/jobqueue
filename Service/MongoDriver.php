@@ -8,21 +8,22 @@ use MongoDB\Database;
 /**
  * Class MongoDriver
  *
+ * @author Alexey Orlov <aaorlov88@gmail.com>
  * @author Virchenko Maksim <muslim1992@gmail.com>
  *
  * @package SfCod\QueueBundle\Service
  */
-class MongoDriver
+class MongoDriver implements MongoDriverInterface
 {
     /**
      * @var string
      */
-    protected $host;
+    protected $dbname;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $dbname;
+    protected $credentials;
 
     /**
      * @var Client
@@ -30,31 +31,57 @@ class MongoDriver
     protected $client;
 
     /**
-     * MongoConnection constructor.
+     * Mongodb credentials
      *
-     * @param string $host
-     * @param string $dbname
+     * @param string $uri MongoDB connection string
+     * @param array $uriOptions Additional connection string options
+     * @param array $driverOptions Driver-specific options
      */
-    public function __construct(string $host = 'mongodb://localhost:27017', string $dbname = 'db')
+    public function setCredentials(string $uri, array $uriOptions = [], array $driverOptions = [])
     {
-        $this->host = $host;
-        $this->dbname = $dbname;
+        $this->credentials = [
+            'uri' => $uri,
+            'uriOptions' => $uriOptions,
+            'driverOptions' => $driverOptions,
+        ];
     }
 
     /**
-     * Get mongo client
-     *
-     * @param bool $reset
+     * Get mongodb client
      *
      * @return Client
      */
-    public function getClient(bool $reset = false): Client
+    public function getClient(): Client
     {
-        if (is_null($this->client) || $reset) {
-            $this->client = new Client($this->host);
+        if (null === $this->client) {
+            $this->client = new Client(
+                $this->credentials['uri'],
+                $this->credentials['uriOptions'],
+                $this->credentials['driverOptions']
+            );
         }
 
         return $this->client;
+    }
+
+    /**
+     * Set client
+     *
+     * @param MongoDB\Client $client
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * Set mongo dbname
+     *
+     * @param string $dbname
+     */
+    public function setDbname(string $dbname = 'db')
+    {
+        $this->dbname = $dbname;
     }
 
     /**

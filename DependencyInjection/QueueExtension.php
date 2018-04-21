@@ -9,12 +9,11 @@ use SfCod\QueueBundle\Command\WorkCommand;
 use SfCod\QueueBundle\JobProcess;
 use SfCod\QueueBundle\Service\JobQueue;
 use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\Glob;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -71,7 +70,6 @@ class QueueExtension extends Extension
      * @param array $config
      *
      * @return array
-     *
      */
     private function grabJobs(array $config, ContainerBuilder $container): array
     {
@@ -130,12 +128,14 @@ class QueueExtension extends Extension
     {
         $mongo = new Definition(MongoDriver::class);
         $mongo->setPublic(true);
-        $mongo->setArguments([
+        $mongo->addMethodCall('setCredentials', [
             getenv('MONGODB_URL'),
+        ]);
+        $mongo->addMethodCall('setDbname', [
             getenv('MONGODB_DB'),
         ]);
 
-        $container->setDefinition(MongoDriver::class, $mongo);
+        $container->setDefinition(MongoDriverInterface::class, $mongo);
     }
 
     /**
@@ -150,7 +150,6 @@ class QueueExtension extends Extension
         $jobQueue->setPublic(true);
         $jobQueue->setArguments([
             new Reference(ContainerInterface::class),
-            new Reference(MongoDriver::class),
             $config['connections'],
         ]);
 

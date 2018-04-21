@@ -9,10 +9,12 @@ Provides Illuminate queues implementation for Symfony (using mongodb as main sto
 ```yaml
 sfcod_queue:
     connections:
-        default: { driver: 'mongo-thread', collection: 'queue_jobs', connectionName: 'default', queue: 'default', expire: 60, limit: 2 }
+        default: { driver: 'mongo-thread', collection: 'queue_jobs', connection: SfCod\QueueBundle\Service\MongoDriverInterface::class, queue: 'default', expire: 60, limit: 2 }
     namespaces:
         - 'App\Job'        
 ```
+namespaces - is requere. Set here all namespace where your job classes are.
+connection - is not requere. If it is not set, bundle will use this service SfCod\QueueBundle\Service\MongoDriverInterface::class as default.
 
 #### Adding jobs to queue:
 

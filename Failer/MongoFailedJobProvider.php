@@ -5,8 +5,7 @@ namespace SfCod\QueueBundle\Failer;
 use Carbon\Carbon;
 use Illuminate\Queue\Failed\FailedJobProviderInterface;
 use MongoDB\Collection;
-use MongoDB\Database;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 
 /**
  * Mongo provider for failed jobs
@@ -18,7 +17,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * The database connection name.
      *
-     * @var MongoDriver
+     * @var MongoDriverInterface
      */
     protected $mongo;
 
@@ -32,10 +31,10 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * Create a new database failed job provider.
      *
-     * @param MongoDriver $mongo
+     * @param MongoDriverInterface $mongo
      * @param string $collection
      */
-    public function __construct(MongoDriver $mongo, string $collection)
+    public function __construct(MongoDriverInterface $mongo, string $collection)
     {
         $this->mongo = $mongo;
         $this->collection = $collection;

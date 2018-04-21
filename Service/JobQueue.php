@@ -3,6 +3,7 @@
 namespace SfCod\QueueBundle\Service;
 
 use Illuminate\Queue\Capsule\Manager;
+use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\QueueManager;
 use SfCod\QueueBundle\Base\JobQueueInterface;
 use SfCod\QueueBundle\Connector\MongoConnector;
@@ -31,14 +32,9 @@ class JobQueue implements JobQueueInterface
             'queue' => 'default',
             'expire' => 60,
             'limit' => 2,
-            'connectionName' => 'default',
+            'connection' => MongoDriverInterface::class, // Default mongo connection
         ],
     ];
-
-    /**
-     * @var MongoDriver
-     */
-    protected $mongo;
 
     /**
      * Manager instance
@@ -51,15 +47,13 @@ class JobQueue implements JobQueueInterface
      * JobQueue constructor.
      *
      * @param ContainerInterface $container
-     * @param MongoDriver $mongo
      * @param array $connections
      *
      * @internal param array $config
      */
-    public function __construct(ContainerInterface $container, MongoDriver $mongo, array $connections = [])
+    public function __construct(ContainerInterface $container, array $connections = [])
     {
         $this->connections = array_merge($this->connections, $connections);
-        $this->mongo = $mongo;
         $this->container = $container;
 
         $this->connect();
@@ -165,6 +159,19 @@ class JobQueue implements JobQueueInterface
     }
 
     /**
+     * Add connector
+     *
+     * @param string $name
+     * @param Closure $resolver
+     */
+    public function addConnector(string $name, ConnectorInterface $connector)
+    {
+        $this->manager->addConnector($name, function () use ($connector) {
+            return $connector;
+        });
+    }
+
+    /**
      * Connect queue manager for mongo database
      *
      * @author Virchenko Maksim <muslim1992@gmail.com>
@@ -176,9 +183,7 @@ class JobQueue implements JobQueueInterface
         if (is_null($this->manager)) {
             $this->manager = new Manager();
 
-            $this->manager->addConnector('mongo-thread', function () {
-                return new MongoConnector($this->mongo, $this->container);
-            });
+            $this->addConnector('mongo-thread', new MongoConnector($this->container));
 
             foreach ($this->connections as $name => $params) {
                 $this->manager->addConnection($params, $name);

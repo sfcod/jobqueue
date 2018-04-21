@@ -5,6 +5,7 @@ namespace SfCod\QueueBundle\Tests\Data;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SfCod\QueueBundle\DependencyInjection\QueueExtension;
+use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Dotenv\Exception\PathException;
@@ -39,7 +40,7 @@ trait LoadTrait
                     'default' => [
                         'driver' => 'mongo-thread',
                         'collection' => 'queue_jobs',
-                        'connectionName' => 'default',
+                        'connection' => MongoDriverInterface::class,
                         'queue' => 'default',
                         'expire' => 60,
                         'limit' => 2,
