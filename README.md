@@ -13,20 +13,45 @@ sfcod_queue:
     namespaces:
         - 'App\Job'        
 ```
-namespaces - is requere. Set here all namespace where your job classes are.
+namespaces - is not requere. You can set here all namespace where your job classes are, otherwise they will be fetched as a services from symfony container.
 connection - is not requere. If it is not set, bundle will use this service SfCod\QueueBundle\Service\MongoDriverInterface::class as default.
+
+```yaml
+services:
+    SfCod\QueueBundle\Service\MongoDriverInterface:
+        class: SfCod\QueueBundle\Service\MongoDriver
+        public: true
+        calls:
+            - [setCredentials, ['%env(MONGODB_URL)%']]
+            - [setDbname, ['%env(MONGODB_NAME)%']]
+
+    SfCod\QueueBundle\JobProcess:
+        public: true
+        arguments:
+            - 'console'
+            - '%kernel.project_dir%/bin'
+            - 'php'
+            - ''
+```
+
+SfCod\QueueBundle\Service\MongoDriverInterface - default config for mongo driver connection,
+SfCod\QueueBundle\JobProcess - default config for jobs command processor in async queues, where: 
+    - 'console' - name of console command 
+    - '%kernel.project_dir%/bin' - path for console command
+    - 'php' - binary script
+    - '' - binary script arguments
 
 #### Adding jobs to queue:
 
 Create your own handler which implements SfCod\QueueBundle\Base\JobInterface
 OR extends SfCod\QueueBundle\Base\JobAbstract
-and run parent::fire($job, $data) to restart db connection before job process 
+and run parent::fire($job, $data) to restart db connection before job process if needed 
 
 ```php
-$jobQueue->push(<--YOUR JOB QUEUE CLASS NAME->>, $data);
+$jobQueue->push(<--YOUR JOB SERVICE NAME->>, $data);
 ```
 
-Note: $data - additional data to your handler
+$data - additional data for your job
 
 #### Start worker:
 
@@ -40,9 +65,9 @@ _________________
 
 In Worker::class:
 ```php
-EVENT_RAISE_BEFORE_JOB = 'raiseBeforeJobEvent';
-EVENT_RAISE_AFTER_JOB = 'raiseAfterJobEvent';
-EVENT_RAISE_EXCEPTION_OCCURED_JOB = 'raiseExceptionOccurredJobEvent';
-EVENT_RAISE_FAILED_JOB = 'raiseFailedJobEvent';
-EVENT_STOP = 'stop';
+'job_queue_worker.raise_before_job': SfCod\QueueBundle\Event\JobProcessingEvent;
+'job_queue_worker.raise_after_job': SfCod\QueueBundle\Event\JobProcessedEvent;
+'job_queue_worker.raise_exception_occurred_job': SfCod\QueueBundle\Event\JobExceptionOccurredEvent;
+'job_queue_worker.raise_failed_job': SfCod\QueueBundle\Event\JobFailedEvent;
+'job_queue_worker.stop': SfCod\QueueBundle\Event\WorkerStoppingEvent;
 ```

@@ -2,6 +2,8 @@
 
 namespace SfCod\QueueBundle\Event;
 
+use Symfony\Component\EventDispatcher\Event;
+
 /**
  * Class JobProcessingEvent
  * Event before job starts
@@ -10,7 +12,7 @@ namespace SfCod\QueueBundle\Event;
  *
  * @package SfCod\QueueBundle\Events
  */
-class JobProcessingEvent
+class JobProcessingEvent extends Event
 {
     /**
      * The connection name.

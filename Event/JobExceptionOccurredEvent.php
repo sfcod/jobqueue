@@ -2,6 +2,8 @@
 
 namespace SfCod\QueueBundle\Event;
 
+use Symfony\Component\EventDispatcher\Event;
+
 /**
  * Class JobExceptionOccurredEvent
  * Event on job exception occured
@@ -10,7 +12,7 @@ namespace SfCod\QueueBundle\Event;
  *
  * @package SfCod\QueueBundle\Events
  */
-class JobExceptionOccurredEvent
+class JobExceptionOccurredEvent extends Event
 {
     /**
      * The connection name.

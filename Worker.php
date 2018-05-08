@@ -10,6 +10,10 @@ use Illuminate\Queue\Jobs\Job;
 use Illuminate\Queue\MaxAttemptsExceededException;
 use Illuminate\Queue\QueueManager;
 use SfCod\QueueBundle\Base\FatalThrowableError;
+use SfCod\QueueBundle\Event\JobExceptionOccurredEvent;
+use SfCod\QueueBundle\Event\JobFailedEvent;
+use SfCod\QueueBundle\Event\JobProcessedEvent;
+use SfCod\QueueBundle\Event\JobProcessingEvent;
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
 use SfCod\QueueBundle\Queue\MongoQueue;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -30,11 +34,11 @@ class Worker implements ContainerAwareInterface
     /**
      * Events
      */
-    const EVENT_RAISE_BEFORE_JOB = 'raiseBeforeJobEvent';
-    const EVENT_RAISE_AFTER_JOB = 'raiseAfterJobEvent';
-    const EVENT_RAISE_EXCEPTION_OCCURED_JOB = 'raiseExceptionOccurredJobEvent';
-    const EVENT_RAISE_FAILED_JOB = 'raiseFailedJobEvent';
-    const EVENT_STOP = 'stop';
+    const EVENT_RAISE_BEFORE_JOB = 'job_queue_worker.raise_before_job';
+    const EVENT_RAISE_AFTER_JOB = 'job_queue_worker.raise_after_job';
+    const EVENT_RAISE_EXCEPTION_OCCURED_JOB = 'job_queue_worker.raise_exception_occurred_job';
+    const EVENT_RAISE_FAILED_JOB = 'job_queue_worker.raise_failed_job';
+    const EVENT_STOP = 'job_queue_worker.stop';
 
     /**
      * @var QueueManager
@@ -170,6 +174,7 @@ class Worker implements ContainerAwareInterface
     }
 
     /** Process the given job from the queue.
+     *
      * @param string $connectionName
      * @param \Illuminate\Contracts\Queue\Job $job
      * @param Options $options
@@ -392,7 +397,8 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseBeforeJobEvent($connectionName, $job)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_BEFORE_JOB, new JobProcessingEvent($connectionName, $job));
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessingEvent($connectionName, $job));
     }
 
     /**
@@ -403,7 +409,8 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseAfterJobEvent($connectionName, $job)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_AFTER_JOB, new JobProcessedEvent($connectionName, $job));
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessedEvent($connectionName, $job));
     }
 
     /**
@@ -415,9 +422,8 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseExceptionOccurredJobEvent($connectionName, $job, $e)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_EXCEPTION_OCCURED_JOB, new JobExceptionOccurredEvent(
-//            $connectionName, $job, $e
-//        ));
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(self::EVENT_RAISE_EXCEPTION_OCCURED_JOB, new JobExceptionOccurredEvent($connectionName, $job, $e));
     }
 
     /**
@@ -429,9 +435,8 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseFailedJobEvent($connectionName, $job, $e)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_FAILED_JOB, new JobFailedEvent(
-//            $connectionName, $job, $e
-//        ));
+        $this->getContainer()->get('event_dispatcher')
+            ->dispatch(self::EVENT_RAISE_FAILED_JOB, new JobFailedEvent($connectionName, $job, $e));
     }
 
     /**
