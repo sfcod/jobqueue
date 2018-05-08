@@ -2,14 +2,9 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use Psr\Log\LoggerInterface;
-use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
-use SfCod\QueueBundle\Handler\ExceptionHandler;
 use SfCod\QueueBundle\Options;
-use SfCod\QueueBundle\Service\JobQueue;
-use SfCod\QueueBundle\Service\MongoDriverInterface;
 use SfCod\QueueBundle\Worker;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,21 +13,25 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class WorkCommand
  * Job queue worker. Use pm2 (http://pm2.keymetrics.io/) for fork command.
  *
- *
  * @author Alexey Orlov <aaorlov88@gmail.com>
  *
  * @package SfCod\QueueBundle\Command
  */
-class WorkCommand extends ContainerAwareCommand
+class WorkCommand extends Command
 {
     /**
-     * @var LoggerInterface
+     * @var Worker
      */
-    protected $logger;
+    protected $worker;
 
-    public function __construct(LoggerInterface $logger)
+    /**
+     * WorkCommand constructor.
+     *
+     * @param Worker $worker
+     */
+    public function __construct(Worker $worker)
     {
-        $this->logger = $logger;
+        $this->worker = $worker;
 
         parent::__construct();
     }
@@ -63,16 +62,6 @@ class WorkCommand extends ContainerAwareCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $queueManager = $this->getContainer()->get(JobQueue::class)->getQueueManager();
-        $mongo = $this->getContainer()->get(MongoDriverInterface::class);
-
-        $worker = new Worker(
-            $queueManager,
-            new MongoFailedJobProvider($mongo, 'queue_jobs_failed'),
-            new ExceptionHandler($this->logger)
-        );
-        $worker->setContainer($this->getContainer());
-
         $workerOptions = new Options(
             $input->getOption('delay'),
             $input->getOption('memory'),
@@ -83,6 +72,6 @@ class WorkCommand extends ContainerAwareCommand
         $connection = $input->getOption('connection');
         $queue = $input->getOption('queue');
 
-        $worker->daemon($connection, $queue, $workerOptions);
+        $this->worker->daemon($connection, $queue, $workerOptions);
     }
 }

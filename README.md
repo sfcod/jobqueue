@@ -34,12 +34,12 @@ services:
             - ''
 ```
 
-SfCod\QueueBundle\Service\MongoDriverInterface - default config for mongo driver connection,
-SfCod\QueueBundle\JobProcess - default config for jobs command processor in async queues, where: 
-    - 'console' - name of console command 
-    - '%kernel.project_dir%/bin' - path for console command
-    - 'php' - binary script
-    - '' - binary script arguments
+SfCod\QueueBundle\Service\MongoDriverInterface: default config for mongo driver connection,
+SfCod\QueueBundle\JobProcess: default config for jobs command processor in async queues, where: 
+- 'console' - name of console command 
+- '%kernel.project_dir%/bin' - path for console command
+- 'php' - binary script
+- '' - binary script arguments
 
 #### Adding jobs to queue:
 
@@ -53,17 +53,21 @@ $jobQueue->push(<--YOUR JOB SERVICE NAME->>, $data);
 
 $data - additional data for your job
 
-#### Start worker:
+#### Commands:
 
 Run worker daemon with console command: 
 ```php
 $ php bin/console job-queue:work
+$ php bin/console job-queue:retry --id=<Job ID>
+$ php bin/console job-queue:run-job <Job ID>
 ```
 
-Available events:
-_________________
+Where: 
+- work - command to run daemon in loop;
+- retry - command to move all failed jobs back into queue, can be used with --id param to retry only single job
+- run-job - command to run single job by id
 
-In Worker::class:
+#### Available events:
 ```php
 'job_queue_worker.raise_before_job': SfCod\QueueBundle\Event\JobProcessingEvent;
 'job_queue_worker.raise_after_job': SfCod\QueueBundle\Event\JobProcessedEvent;
