@@ -2,6 +2,8 @@
 
 namespace SfCod\QueueBundle\Event;
 
+use Symfony\Component\EventDispatcher\Event;
+
 /**
  * Class WorkerStoppingEvent
  * Event on worker stopping
@@ -10,6 +12,6 @@ namespace SfCod\QueueBundle\Event;
  *
  * @package SfCod\QueueBundle\Events
  */
-class WorkerStoppingEvent
+class WorkerStoppingEvent extends Event
 {
 }

@@ -2,6 +2,8 @@
 
 namespace SfCod\QueueBundle\Event;
 
+use Symfony\Component\EventDispatcher\Event;
+
 /**
  * Class JobFailedEvent
  * Event on jobs failed
@@ -10,7 +12,7 @@ namespace SfCod\QueueBundle\Event;
  *
  * @package SfCod\QueueBundle\Events
  */
-class JobFailedEvent
+class JobFailedEvent extends Event
 {
     /**
      * The connection name.

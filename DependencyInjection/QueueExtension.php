@@ -6,14 +6,19 @@ use Psr\Log\LoggerInterface;
 use SfCod\QueueBundle\Command\RetryCommand;
 use SfCod\QueueBundle\Command\RunJobCommand;
 use SfCod\QueueBundle\Command\WorkCommand;
+use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
+use SfCod\QueueBundle\Handler\ExceptionHandler;
+use SfCod\QueueBundle\Handler\ExceptionHandlerInterface;
 use SfCod\QueueBundle\JobProcess;
 use SfCod\QueueBundle\Service\JobQueue;
 use SfCod\QueueBundle\Service\MongoDriver;
 use SfCod\QueueBundle\Service\MongoDriverInterface;
+use SfCod\QueueBundle\Worker;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -52,6 +57,7 @@ class QueueExtension extends Extension
         }
         $this->createDriver($config, $container);
         $this->createJobQueue($config, $container);
+        $this->createWorker($config, $container);
         $this->createJobProcess($config, $container);
         $this->createCommands($config, $container);
     }
@@ -98,16 +104,20 @@ class QueueExtension extends Extension
     {
         $work = new Definition(WorkCommand::class);
         $work->setArguments([
-            new Reference(LoggerInterface::class),
+            new Reference(Worker::class),
         ]);
         $work->addTag('console.command');
 
         $retry = new Definition(RetryCommand::class);
+        $retry->setArguments([
+            new Reference(JobQueue::class),
+            new Reference(MongoFailedJobProvider::class),
+        ]);
         $retry->addTag('console.command');
 
         $runJob = new Definition(RunJobCommand::class);
         $runJob->setArguments([
-            new Reference(LoggerInterface::class),
+            new Reference(Worker::class),
         ]);
         $runJob->addTag('console.command');
 
@@ -154,6 +164,45 @@ class QueueExtension extends Extension
         ]);
 
         $container->setDefinition(JobQueue::class, $jobQueue);
+    }
+
+    /**
+     * Create worker
+     *
+     * @param array $config
+     * @param ContainerBuilder $container
+     */
+    private function createWorker(array $config, ContainerBuilder $container)
+    {
+        $worker = new Definition(Worker::class);
+        $worker
+            ->setArguments([
+                new Reference(JobQueue::class),
+                new Reference(JobProcess::class),
+                new Reference(MongoFailedJobProvider::class),
+                new Reference(ExceptionHandlerInterface::class),
+                new Reference(EventDispatcherInterface::class),
+            ]);
+
+        $failedProvider = new Definition(MongoFailedJobProvider::class);
+        $failedProvider
+            ->setArguments([
+                new Reference(MongoDriverInterface::class),
+                'queue_jobs_failed',
+            ]);
+
+        $exceptionHandler = new Definition(ExceptionHandlerInterface::class);
+        $exceptionHandler
+            ->setClass(ExceptionHandler::class)
+            ->setArguments([
+                new Reference(LoggerInterface::class),
+            ]);
+
+        $container->addDefinitions([
+            Worker::class => $worker,
+            MongoFailedJobProvider::class => $failedProvider,
+            ExceptionHandlerInterface::class => $exceptionHandler,
+        ]);
     }
 
     /**

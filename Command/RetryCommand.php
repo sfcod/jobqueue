@@ -2,11 +2,13 @@
 
 namespace SfCod\QueueBundle\Command;
 
+use Illuminate\Queue\Jobs\Job;
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
 use SfCod\QueueBundle\Service\JobQueue;
 use SfCod\QueueBundle\Service\MongoDriverInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -17,15 +19,40 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @package SfCod\QueueBundle\Command
  */
-class RetryCommand extends ContainerAwareCommand
+class RetryCommand extends Command
 {
+    /**
+     * @var JobQueue
+     */
+    protected $queue;
+
+    /**
+     * @var MongoFailedJobProvider
+     */
+    protected $failer;
+
+    /**
+     * RetryCommand constructor.
+     *
+     * @param JobQueue $queue
+     * @param MongoDriverInterface $mongoDriver
+     */
+    public function __construct(JobQueue $queue, MongoFailedJobProvider $failer)
+    {
+        $this->queue = $queue;
+        $this->failer = $failer;
+
+        parent::__construct();
+    }
+
     /**
      * Configure command
      */
     protected function configure()
     {
         $this->setName('job-queue:retry')
-            ->setDescription('Release all failed jobs.');
+            ->setDescription('Release all failed jobs.')
+            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Job id to retry', null);
     }
 
     /**
@@ -40,24 +67,41 @@ class RetryCommand extends ContainerAwareCommand
     {
         $io = new SymfonyStyle($input, $output);
 
-        $queue = $this->getContainer()->get(JobQueue::class);
-        $mongo = $this->getContainer()->get(MongoDriverInterface::class);
-        $failer = new MongoFailedJobProvider($mongo, 'queue_jobs_failed');
-
         $jobsCount = 0;
-        foreach ($failer->all() as $job) {
-            $payload = json_decode($job->payload, true);
-
-            if ($payload && isset($payload['job'], $payload['data'])) {
-                $queue->push($payload['job'], $payload['data']);
-                $failer->forget($job->_id);
-
-                ++$jobsCount;
-
-//                $io->writeln(sprintf("Job [%s] has been released.\n", $job->_id));
+        if (is_null($input->getOption('id'))) {
+            foreach ($this->failer->all() as $job) {
+                if ($this->retryJob($job)) {
+                    ++$jobsCount;
+                }
             }
+        } else {
+            $job = $this->failer->find($input->getOption('id'));
+            $this->retryJob($job);
+
+            ++$jobsCount;
         }
 
         $io->success(sprintf("[%d] job(s) has been released.\n", $jobsCount));
+    }
+
+    /**
+     * Retry job
+     *
+     * @param Job $job
+     *
+     * @return bool
+     */
+    protected function retryJob($job): bool
+    {
+        $payload = json_decode($job->payload, true);
+
+        if ($payload && isset($payload['job'], $payload['data'])) {
+            $this->queue->push($payload['job'], $payload['data']);
+            $this->failer->forget($job->_id);
+
+            return true;
+        }
+
+        return false;
     }
 }

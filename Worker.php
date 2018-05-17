@@ -4,17 +4,21 @@ namespace SfCod\QueueBundle;
 
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Queue\MaxAttemptsExceededException;
 use Illuminate\Queue\QueueManager;
 use SfCod\QueueBundle\Base\FatalThrowableError;
+use SfCod\QueueBundle\Event\JobExceptionOccurredEvent;
+use SfCod\QueueBundle\Event\JobFailedEvent;
+use SfCod\QueueBundle\Event\JobProcessedEvent;
+use SfCod\QueueBundle\Event\JobProcessingEvent;
+use SfCod\QueueBundle\Event\WorkerStoppingEvent;
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
+use SfCod\QueueBundle\Handler\ExceptionHandlerInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use SfCod\QueueBundle\Service\JobQueue;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -23,37 +27,45 @@ use Throwable;
  *
  * @author Virchenko Maksim <muslim1992@gmail.com>
  */
-class Worker implements ContainerAwareInterface
+class Worker
 {
-    use ContainerAwareTrait;
-
     /**
      * Events
      */
-    const EVENT_RAISE_BEFORE_JOB = 'raiseBeforeJobEvent';
-    const EVENT_RAISE_AFTER_JOB = 'raiseAfterJobEvent';
-    const EVENT_RAISE_EXCEPTION_OCCURED_JOB = 'raiseExceptionOccurredJobEvent';
-    const EVENT_RAISE_FAILED_JOB = 'raiseFailedJobEvent';
-    const EVENT_STOP = 'stop';
+    const EVENT_RAISE_BEFORE_JOB = 'job_queue_worker.raise_before_job';
+    const EVENT_RAISE_AFTER_JOB = 'job_queue_worker.raise_after_job';
+    const EVENT_RAISE_EXCEPTION_OCCURED_JOB = 'job_queue_worker.raise_exception_occurred_job';
+    const EVENT_RAISE_FAILED_JOB = 'job_queue_worker.raise_failed_job';
+    const EVENT_STOP = 'job_queue_worker.stop';
 
     /**
      * @var QueueManager
      */
-    protected $manager;
+    private $manager;
 
     /**
      * Logger instance
      *
      * @var ExceptionHandler
      */
-    protected $exceptions;
+    private $exceptions;
 
     /**
      * Failer instance
      *
      * @var MongoFailedJobProvider
      */
-    protected $failer;
+    private $failer;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var JobProcess
+     */
+    private $jobProcess;
 
     /**
      * Create a new queue worker.
@@ -62,13 +74,17 @@ class Worker implements ContainerAwareInterface
      * @param MongoFailedJobProvider $failer
      * @param ExceptionHandler $exceptions
      */
-    public function __construct(QueueManager $manager,
+    public function __construct(JobQueue $queue,
+                                JobProcess $process,
                                 MongoFailedJobProvider $failer,
-                                ExceptionHandler $exceptions)
+                                ExceptionHandlerInterface $exceptions,
+                                EventDispatcherInterface $dispatcher)
     {
-        $this->manager = $manager;
+        $this->manager = $queue->getQueueManager();
+        $this->process = $process;
         $this->failer = $failer;
         $this->exceptions = $exceptions;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -164,12 +180,13 @@ class Worker implements ContainerAwareInterface
      */
     public function runInBackground(Job $job, string $connectionName)
     {
-        $process = $this->getContainer()->get(JobProcess::class)->getProcess($job, $connectionName);
+        $process = $this->process->getProcess($job, $connectionName);
 
         $process->run();
     }
 
     /** Process the given job from the queue.
+     *
      * @param string $connectionName
      * @param \Illuminate\Contracts\Queue\Job $job
      * @param Options $options
@@ -236,7 +253,7 @@ class Worker implements ContainerAwareInterface
      */
     public function stop($status = 0)
     {
-//        Event::trigger(self::class, self::EVENT_STOP, new WorkerStoppingEvent());
+        $this->dispatcher->dispatch(self::EVENT_STOP, new WorkerStoppingEvent());
 
         exit(0);
     }
@@ -392,7 +409,7 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseBeforeJobEvent($connectionName, $job)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_BEFORE_JOB, new JobProcessingEvent($connectionName, $job));
+        $this->dispatcher->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessingEvent($connectionName, $job));
     }
 
     /**
@@ -403,7 +420,7 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseAfterJobEvent($connectionName, $job)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_AFTER_JOB, new JobProcessedEvent($connectionName, $job));
+        $this->dispatcher->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessedEvent($connectionName, $job));
     }
 
     /**
@@ -415,9 +432,7 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseExceptionOccurredJobEvent($connectionName, $job, $e)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_EXCEPTION_OCCURED_JOB, new JobExceptionOccurredEvent(
-//            $connectionName, $job, $e
-//        ));
+        $this->dispatcher->dispatch(self::EVENT_RAISE_EXCEPTION_OCCURED_JOB, new JobExceptionOccurredEvent($connectionName, $job, $e));
     }
 
     /**
@@ -429,18 +444,6 @@ class Worker implements ContainerAwareInterface
      */
     protected function raiseFailedJobEvent($connectionName, $job, $e)
     {
-//        Event::trigger(self::class, self::EVENT_RAISE_FAILED_JOB, new JobFailedEvent(
-//            $connectionName, $job, $e
-//        ));
-    }
-
-    /**
-     * @return ContainerInterface
-     *
-     * @throws \LogicException
-     */
-    protected function getContainer()
-    {
-        return $this->container;
+        $this->dispatcher->dispatch(self::EVENT_RAISE_FAILED_JOB, new JobFailedEvent($connectionName, $job, $e));
     }
 }

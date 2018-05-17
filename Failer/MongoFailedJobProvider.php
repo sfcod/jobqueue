@@ -34,7 +34,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      * @param MongoDriverInterface $mongo
      * @param string $collection
      */
-    public function __construct(MongoDriverInterface $mongo, string $collection)
+    public function __construct(MongoDriverInterface $mongo, string $collection = 'queue_jobs_failed')
     {
         $this->mongo = $mongo;
         $this->collection = $collection;
