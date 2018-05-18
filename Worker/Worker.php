@@ -1,23 +1,21 @@
 <?php
 
-namespace SfCod\QueueBundle;
+namespace SfCod\QueueBundle\Worker;
 
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Queue\Jobs\Job;
-use Illuminate\Queue\MaxAttemptsExceededException;
-use Illuminate\Queue\QueueManager;
-use SfCod\QueueBundle\Base\FatalThrowableError;
 use SfCod\QueueBundle\Event\JobExceptionOccurredEvent;
 use SfCod\QueueBundle\Event\JobFailedEvent;
 use SfCod\QueueBundle\Event\JobProcessedEvent;
 use SfCod\QueueBundle\Event\JobProcessingEvent;
 use SfCod\QueueBundle\Event\WorkerStoppingEvent;
-use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
+use SfCod\QueueBundle\Exception\FatalThrowableException;
+use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
 use SfCod\QueueBundle\Handler\ExceptionHandlerInterface;
-use SfCod\QueueBundle\Queue\MongoQueue;
-use SfCod\QueueBundle\Service\JobQueue;
+use SfCod\QueueBundle\Job\JobContractInterface;
+use SfCod\QueueBundle\MaxAttemptsExceededException;
+use SfCod\QueueBundle\Queue\QueueInterface;
+use SfCod\QueueBundle\Service\JobProcess;
+use SfCod\QueueBundle\Service\QueueManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -39,9 +37,11 @@ class Worker
     const EVENT_STOP = 'job_queue_worker.stop';
 
     /**
+     * QueueManager instance
+     *
      * @var QueueManager
      */
-    private $manager;
+    private $queueManager;
 
     /**
      * Logger instance
@@ -53,7 +53,7 @@ class Worker
     /**
      * Failer instance
      *
-     * @var MongoFailedJobProvider
+     * @var FailedJobProviderInterface
      */
     private $failer;
 
@@ -68,19 +68,21 @@ class Worker
     private $jobProcess;
 
     /**
-     * Create a new queue worker.
+     * Worker constructor.
      *
-     * @param QueueManager $manager
-     * @param MongoFailedJobProvider $failer
-     * @param ExceptionHandler $exceptions
+     * @param QueueInterface $queue
+     * @param JobProcess $process
+     * @param FailedJobProviderInterface $failer
+     * @param ExceptionHandlerInterface $exceptions
+     * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(JobQueue $queue,
+    public function __construct(QueueManager $queueManager,
                                 JobProcess $process,
-                                MongoFailedJobProvider $failer,
+                                FailedJobProviderInterface $failer,
                                 ExceptionHandlerInterface $exceptions,
                                 EventDispatcherInterface $dispatcher)
     {
-        $this->manager = $queue->getQueueManager();
+        $this->queueManager = $queueManager;
         $this->process = $process;
         $this->failer = $failer;
         $this->exceptions = $exceptions;
@@ -94,7 +96,7 @@ class Worker
      * @param string $queue
      * @param Options $options
      */
-    public function daemon($connectionName, $queue, Options $options)
+    public function daemon(string $connectionName, string $queue, Options $options)
     {
         while (true) {
             if (false === $this->runNextJob($connectionName, $queue, $options)) {
@@ -116,17 +118,15 @@ class Worker
      *
      * @return bool
      */
-    public function runNextJob($connectionName, $queue, Options $options)
+    public function runNextJob(string $connectionName, string $queue, Options $options)
     {
-        /** @var MongoQueue|Queue $connection */
-        $connection = $this->manager->connection($connectionName);
-
+        $connection = $this->queueManager->connection($connectionName);
         $job = $this->getNextJob($connection, $queue);
 
         // If we're able to pull a job off of the stack, we will process it and then return
         // from this method. If there is no job on the queue, we will "sleep" the worker
         // for the specified number of seconds, then keep processing jobs after sleep.
-        if ($job instanceof Job && $connection->canRunJob($job)) {
+        if ($job instanceof JobContractInterface && $connection->canRunJob($job)) {
             $connection->markJobAsReserved($job);
             $this->runInBackground($job, $connectionName);
 
@@ -143,18 +143,16 @@ class Worker
      * @param $id
      * @param Options $options
      */
-    public function runJobById($connectionName, $id, Options $options)
+    public function runJobById(string $connectionName, $id, Options $options)
     {
-        /** @var MongoQueue|Queue $connection */
-        $connection = $this->manager->connection($connectionName);
-
         try {
+            $connection = $this->queueManager->connection($connectionName);
             $job = $connection->getJobById($id);
 
             // If we're able to pull a job off of the stack, we will process it and then return
             // from this method. If there is no job on the queue, we will "sleep" the worker
             // for the specified number of seconds, then keep processing jobs after sleep.
-            if ($job instanceof Job) {
+            if ($job instanceof JobContractInterface) {
                 if (false === $job->reserved()) {
                     $connection->markJobAsReserved($job);
                 }
@@ -166,7 +164,7 @@ class Worker
         } catch (Exception $e) {
             $this->exceptions->report($e);
         } catch (Throwable $e) {
-            $this->exceptions->report(new FatalThrowableError($e));
+            $this->exceptions->report(new FatalThrowableException($e));
         }
 
         $this->sleep($options->sleep);
@@ -175,10 +173,10 @@ class Worker
     /**
      * Make a Process for the Artisan command for the job id.
      *
-     * @param Job $job
+     * @param JobContractInterface $job
      * @param string $connectionName
      */
-    public function runInBackground(Job $job, string $connectionName)
+    public function runInBackground(JobContractInterface $job, string $connectionName)
     {
         $process = $this->process->getProcess($job, $connectionName);
 
@@ -188,14 +186,14 @@ class Worker
     /** Process the given job from the queue.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      * @param Options $options
      *
      * @return void
      *
      * @throws \Throwable
      */
-    public function process($connectionName, $job, Options $options)
+    public function process(string $connectionName, JobContractInterface $job, Options $options)
     {
         try {
             // First we will raise the before job event and determine if the job has already ran
@@ -217,7 +215,7 @@ class Worker
             $this->handleJobException($connectionName, $job, $options, $e);
         } catch (Throwable $e) {
             $this->handleJobException(
-                $connectionName, $job, $options, new FatalThrowableError($e)
+                $connectionName, $job, $options, new FatalThrowableException($e)
             );
         }
     }
@@ -229,7 +227,7 @@ class Worker
      *
      * @return void
      */
-    public function sleep($seconds)
+    public function sleep(int $seconds)
     {
         sleep($seconds);
     }
@@ -241,7 +239,7 @@ class Worker
      *
      * @return bool
      */
-    public function memoryExceeded($memoryLimit)
+    public function memoryExceeded(int $memoryLimit)
     {
         return (memory_get_usage() / 1024 / 1024) >= $memoryLimit;
     }
@@ -251,7 +249,7 @@ class Worker
      *
      * @param int $status
      */
-    public function stop($status = 0)
+    public function stop(int $status = 0)
     {
         $this->dispatcher->dispatch(self::EVENT_STOP, new WorkerStoppingEvent());
 
@@ -264,18 +262,18 @@ class Worker
      * This will likely be because the job previously exceeded a timeout.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      * @param int $maxTries
      *
      * @return void
      */
-    protected function markJobAsFailedIfAlreadyExceedsMaxAttempts($connectionName, $job, $maxTries)
+    protected function markJobAsFailedIfAlreadyExceedsMaxAttempts(string $connectionName, JobContractInterface $job, int $maxTries)
     {
         $maxTries = !is_null($job->maxTries()) ? $job->maxTries() : $maxTries;
 
         $timeoutAt = $job->timeoutAt();
 
-        if ($timeoutAt && Carbon::now()->getTimestamp() <= $timeoutAt) {
+        if ($timeoutAt && time() <= $timeoutAt) {
             return;
         }
 
@@ -294,10 +292,10 @@ class Worker
      * Mark the given job as failed and raise the relevant event.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
-     * @param \Exception $e
+     * @param JobContractInterface $job
+     * @param Exception $e
      */
-    protected function failJob($connectionName, $job, $e)
+    protected function failJob(string $connectionName, JobContractInterface $job, Exception $e)
     {
         if ($job->isDeleted()) {
             return;
@@ -320,15 +318,15 @@ class Worker
      * Handle an exception that occurred while the job was running.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      * @param Options $options
-     * @param \Exception $e
+     * @param Exception $e
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function handleJobException($connectionName, $job, Options $options, $e)
+    protected function handleJobException(string $connectionName, JobContractInterface $job, Options $options, Exception $e)
     {
         try {
             // First, we will go ahead and mark the job as failed if it will exceed the maximum
@@ -359,17 +357,17 @@ class Worker
      * Mark the given job as failed if it has exceeded the maximum allowed attempts.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      * @param int $maxTries
-     * @param \Exception $e
+     * @param Exception $e
      *
      * @return void
      */
-    protected function markJobAsFailedIfWillExceedMaxAttempts($connectionName, $job, $maxTries, $e)
+    protected function markJobAsFailedIfWillExceedMaxAttempts(string $connectionName, JobContractInterface $job, int $maxTries, Exception $e)
     {
         $maxTries = !is_null($job->maxTries()) ? $job->maxTries() : $maxTries;
 
-        if ($job->timeoutAt() && $job->timeoutAt() <= Carbon::now()->getTimestamp()) {
+        if ($job->timeoutAt() && $job->timeoutAt() <= time()) {
             $this->failJob($connectionName, $job, $e);
         }
 
@@ -381,12 +379,12 @@ class Worker
     /**
      * Get the next job from the queue connection.
      *
-     * @param \Illuminate\Contracts\Queue\Queue $connection
+     * @param QueueInterface $connection
      * @param string $queue
      *
-     * @return \Illuminate\Contracts\Queue\Job|null
+     * @return JobContractInterface|null
      */
-    protected function getNextJob($connection, $queue)
+    protected function getNextJob(QueueInterface $connection, string $queue): ?JobContractInterface
     {
         try {
             foreach (explode(',', $queue) as $queue) {
@@ -397,17 +395,19 @@ class Worker
         } catch (Exception $e) {
             $this->exceptions->report($e);
         } catch (Throwable $e) {
-            $this->exceptions->report($e = new FatalThrowableError($e));
+            $this->exceptions->report($e = new FatalThrowableException($e));
         }
+
+        return null;
     }
 
     /**
      * Raise the before queue job event.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      */
-    protected function raiseBeforeJobEvent($connectionName, $job)
+    protected function raiseBeforeJobEvent(string $connectionName, JobContractInterface $job)
     {
         $this->dispatcher->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessingEvent($connectionName, $job));
     }
@@ -416,9 +416,9 @@ class Worker
      * Raise the after queue job event.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      */
-    protected function raiseAfterJobEvent($connectionName, $job)
+    protected function raiseAfterJobEvent(string $connectionName, JobContractInterface $job)
     {
         $this->dispatcher->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessedEvent($connectionName, $job));
     }
@@ -427,10 +427,10 @@ class Worker
      * Raise the exception occurred queue job event.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
-     * @param \Exception $e
+     * @param JobContractInterface $job
+     * @param Exception $e
      */
-    protected function raiseExceptionOccurredJobEvent($connectionName, $job, $e)
+    protected function raiseExceptionOccurredJobEvent(string $connectionName, JobContractInterface $job, Exception $e)
     {
         $this->dispatcher->dispatch(self::EVENT_RAISE_EXCEPTION_OCCURED_JOB, new JobExceptionOccurredEvent($connectionName, $job, $e));
     }
@@ -439,10 +439,10 @@ class Worker
      * Raise the failed queue job event.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
-     * @param \Exception $e
+     * @param JobContractInterface $job
+     * @param Exception $e
      */
-    protected function raiseFailedJobEvent($connectionName, $job, $e)
+    protected function raiseFailedJobEvent(string $connectionName, JobContractInterface $job, Exception $e)
     {
         $this->dispatcher->dispatch(self::EVENT_RAISE_FAILED_JOB, new JobFailedEvent($connectionName, $job, $e));
     }

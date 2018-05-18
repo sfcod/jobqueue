@@ -2,12 +2,13 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use SfCod\QueueBundle\Options;
-use SfCod\QueueBundle\Worker;
+use SfCod\QueueBundle\Worker\Options;
+use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class WorkCommand
@@ -48,7 +49,7 @@ class WorkCommand extends Command
             ->addOption('maxTries', null, InputArgument::OPTIONAL, 'Max tries to run job.', 1)
             ->addOption('timeout', null, InputArgument::OPTIONAL, 'Daemon timeout.', 60)
             ->addOption('connection', null, InputArgument::OPTIONAL, 'The name of the connection.', 'default')
-            ->addOption('queue', null, InputArgument::OPTIONAL, 'The name of the queue.', null)
+            ->addOption('queue', null, InputArgument::OPTIONAL, 'The name of the queue.', 'default')
             ->setDescription('Run worker.');
     }
 
@@ -62,6 +63,8 @@ class WorkCommand extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $io = new SymfonyStyle($input, $output);
+
         $workerOptions = new Options(
             $input->getOption('delay'),
             $input->getOption('memory'),
@@ -71,6 +74,8 @@ class WorkCommand extends Command
         );
         $connection = $input->getOption('connection');
         $queue = $input->getOption('queue');
+
+        $io->success(sprintf('Worker daemon has started.'));
 
         $this->worker->daemon($connection, $queue, $workerOptions);
     }

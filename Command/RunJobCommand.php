@@ -3,8 +3,8 @@
 namespace SfCod\QueueBundle\Command;
 
 use Psr\Log\LoggerInterface;
-use SfCod\QueueBundle\Options;
-use SfCod\QueueBundle\Worker;
+use SfCod\QueueBundle\Worker\Options;
+use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,7 +44,7 @@ class RunJobCommand extends Command
             ->setDescription('Runs single job by id.')
             ->addArgument('id', InputArgument::REQUIRED, 'The id of the job.')
             ->addOption('connection', null, InputArgument::OPTIONAL, 'The name of the connection.', 'default')
-            ->addOption('queue', null, InputArgument::OPTIONAL, 'The name of the queue.', null)
+            ->addOption('queue', null, InputArgument::OPTIONAL, 'The name of the queue.', 'default')
             ->addOption('delay', null, InputArgument::OPTIONAL, 'Delay before getting jobs.', 0)
             ->addOption('memory', null, InputArgument::OPTIONAL, 'Maximum memory usage limit.', 128)
             ->addOption('sleep', null, InputArgument::OPTIONAL, 'Sleep time before getting new job.', 3)

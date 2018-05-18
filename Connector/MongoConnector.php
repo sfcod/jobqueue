@@ -2,10 +2,10 @@
 
 namespace SfCod\QueueBundle\Connector;
 
-use Illuminate\Queue\Connectors\ConnectorInterface;
+use SfCod\QueueBundle\Base\JobResolverInterface;
+use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
-use SfCod\QueueBundle\Service\MongoDriverInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use SfCod\QueueBundle\Queue\QueueInterface;
 
 /**
  * Connector for laravel queue to mongodb
@@ -16,18 +16,25 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MongoConnector implements ConnectorInterface
 {
     /**
-     * @var ContainerInterface
+     * @var JobResolverInterface
      */
-    protected $container;
+    protected $jobResolver;
 
     /**
-     * Create a new connector instance.
-     *
-     * @param ContainerInterface $container
+     * @var MongoDriverInterface
      */
-    public function __construct(ContainerInterface $container)
+    protected $mongoDriver;
+
+    /**
+     * MongoConnector constructor.
+     *
+     * @param JobResolverInterface $jobResolver
+     * @param MongoDriverInterface $mongoDriver
+     */
+    public function __construct(JobResolverInterface $jobResolver, MongoDriverInterface $mongoDriver)
     {
-        $this->container = $container;
+        $this->jobResolver = $jobResolver;
+        $this->mongoDriver = $mongoDriver;
     }
 
     /**
@@ -35,17 +42,22 @@ class MongoConnector implements ConnectorInterface
      *
      * @param array $config
      *
-     * @return MongoQueue
+     * @return QueueInterface
      */
-    public function connect(array $config)
+    public function connect(array $config): QueueInterface
     {
         $config = array_merge([
             'limit' => 15,
-            'connection' => MongoDriverInterface::class,
         ], $config);
 
-        $mongoQueue = new MongoQueue($this->container->get($config['connection']), $config['collection'], $config['queue'], $config['expire'], $config['limit']);
-        $mongoQueue->putContainer($this->container);
+        $mongoQueue = new MongoQueue(
+            $this->jobResolver,
+            $this->mongoDriver,
+            $config['collection'],
+            $config['queue'],
+            $config['expire'],
+            $config['limit']
+        );
 
         return $mongoQueue;
     }

@@ -2,11 +2,10 @@
 
 namespace SfCod\QueueBundle\Job;
 
-use Illuminate\Contracts\Queue\Job as JobContract;
-use SfCod\QueueBundle\Base\Job;
-use SfCod\QueueBundle\Queue\MongoQueue;
+use SfCod\QueueBundle\Base\JobInterface;
+use SfCod\QueueBundle\Base\JobResolverInterface;
+use SfCod\QueueBundle\Queue\QueueInterface;
 use stdClass;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * MongoJob for laravel queue
@@ -14,12 +13,19 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @author Alexey Orlov <aaorlov88@gmail.com>
  * @author Virchenko Maksim <muslim1992@gmail.com>
  */
-class MongoJob extends Job implements JobContract
+class MongoJobContract extends JobContract implements JobContractInterface
 {
+    /**
+     * Job resolver
+     *
+     * @var JobResolverInterface
+     */
+    protected $resolver;
+
     /**
      * The database queue instance.
      *
-     * @var MongoQueue
+     * @var QueueInterface
      */
     protected $database;
 
@@ -33,17 +39,17 @@ class MongoJob extends Job implements JobContract
     /**
      * Create a new job instance.
      *
-     * @param ContainerInterface $container
-     * @param MongoQueue $database
-     * @param StdClass $job
+     * @param JobResolverInterface $resolver
+     * @param QueueInterface $database
+     * @param StdClass|MongoDB\Model\BSONDocument $job
      * @param string $queue
      */
-    public function __construct(ContainerInterface $container, MongoQueue $database, $job, $queue)
+    public function __construct(JobResolverInterface $resolver, QueueInterface $database, $job, string $queue)
     {
+        $this->resolver = $resolver;
+        $this->database = $database;
         $this->job = $job;
         $this->queue = $queue;
-        $this->database = $database;
-        $this->container = $container;
     }
 
     /**
@@ -103,8 +109,20 @@ class MongoJob extends Job implements JobContract
      *
      * @return string
      */
-    public function getRawBody()
+    public function getRawBody(): string
     {
         return $this->job->payload;
+    }
+
+    /**
+     * Resolve job
+     *
+     * @param string $class
+     *
+     * @return JobInterface
+     */
+    protected function resolve(string $class): JobInterface
+    {
+        return $this->resolver->resolve($class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace SfCod\QueueBundle\Event;
 
+use SfCod\QueueBundle\Job\JobContractInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -24,7 +25,7 @@ class JobProcessingEvent extends Event
     /**
      * The job instance.
      *
-     * @var \Illuminate\Contracts\Queue\Job
+     * @var JobContractInterface
      */
     public $job;
 
@@ -32,10 +33,10 @@ class JobProcessingEvent extends Event
      * Create a new event instance.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param JobContractInterface $job
      * @param array $config
      */
-    public function __construct($connectionName, $job, array $config = [])
+    public function __construct(string $connectionName, JobContractInterface $job, array $config = [])
     {
         $this->job = $job;
         $this->connectionName = $connectionName;

@@ -2,16 +2,13 @@
 
 namespace SfCod\QueueBundle\Queue;
 
-use Carbon\Carbon;
+use DateInterval;
 use DateTime;
-use Exception;
-use Illuminate\Container\Container;
-use Illuminate\Queue\Queue;
 use MongoDB\Collection;
-use SfCod\QueueBundle\Base\Job;
-use SfCod\QueueBundle\Job\MongoJob;
-use SfCod\QueueBundle\Service\MongoDriverInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use SfCod\QueueBundle\Base\JobResolverInterface;
+use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
+use SfCod\QueueBundle\Job\MongoJobContract;
 
 /**
  * Class MongoQueue
@@ -23,9 +20,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MongoQueue extends Queue
 {
     /**
+     * Job resolver
+     *
+     * @var JobResolverInterface
+     */
+    protected $resolver;
+
+    /**
      * The mongo connection instance.
      *
-     * @var \Illuminate\Database\Connection
+     * @var MongoDriverInterface
      */
     protected $mongo;
 
@@ -41,7 +45,7 @@ class MongoQueue extends Queue
      *
      * @var string
      */
-    protected $queue;
+    protected $queue = 'default';
 
     /**
      * The expiration time of a job.
@@ -64,16 +68,19 @@ class MongoQueue extends Queue
      * @param int $expire
      * @param int $limit
      */
-    public function __construct(MongoDriverInterface $mongo,
-                                string $collection,
-                                string $queue = 'default',
-                                int $expire = 60,
-                                int $limit = 15
+    public function __construct(
+        JobResolverInterface $resolver,
+        MongoDriverInterface $mongo,
+        string $collection,
+        string $queue = 'default',
+        int $expire = 60,
+        int $limit = 15
     ) {
+        $this->resolver = $resolver;
+        $this->mongo = $mongo;
         $this->collection = $collection;
         $this->expire = $expire;
         $this->queue = $queue;
-        $this->mongo = $mongo;
         $this->limit = $limit;
     }
 
@@ -86,7 +93,7 @@ class MongoQueue extends Queue
      *
      * @return mixed
      */
-    public function push($job, $data = '', $queue = null)
+    public function push(string $job, array $data = [], ?string $queue = null)
     {
         return $this->pushToDatabase(0, $queue, $this->createPayload($job, $data));
     }
@@ -96,9 +103,9 @@ class MongoQueue extends Queue
      *
      * @param string $queue
      *
-     * @return null|Job
+     * @return null|JobContractInterface
      */
-    public function pop($queue = null)
+    public function pop(?string $queue = null): ?JobContractInterface
     {
         $queue = $this->getQueue($queue);
 
@@ -113,12 +120,12 @@ class MongoQueue extends Queue
      * Push a new job onto the queue.
      *
      * @param string $job
-     * @param mixed $data
-     * @param string $queue
+     * @param array $data
+     * @param string|null $queue
      *
-     * @return mixed
+     * @return bool
      */
-    public function exists($job, $data = '', $queue = null)
+    public function exists(string $job, array $data = [], ?string $queue = null): bool
     {
         return null !== $this->getCollection()->findOne([
                 'queue' => $queue,
@@ -130,12 +137,12 @@ class MongoQueue extends Queue
      * Push a raw payload onto the queue.
      *
      * @param string $payload
-     * @param string $queue
+     * @param string|null $queue
      * @param array $options
      *
      * @return mixed
      */
-    public function pushRaw($payload, $queue = null, array $options = [])
+    public function pushRaw(string $payload, ?string $queue = null, array $options = [])
     {
         return $this->pushToDatabase(0, $queue, $payload);
     }
@@ -143,14 +150,14 @@ class MongoQueue extends Queue
     /**
      * Push a new job onto the queue after a delay.
      *
-     * @param DateTime|int $delay
+     * @param DateInterval|int $delay
      * @param string $job
-     * @param mixed $data
+     * @param array $data
      * @param string $queue
      *
      * @return mixed
      */
-    public function later($delay, $job, $data = '', $queue = null)
+    public function later($delay, string $job, array $data = [], ?string $queue = null)
     {
         return $this->pushToDatabase($delay, $queue, $this->createPayload($job, $data));
     }
@@ -164,7 +171,7 @@ class MongoQueue extends Queue
      *
      * @return mixed
      */
-    public function bulk($jobs, $data = '', $queue = null)
+    public function bulk(array $jobs, array $data = [], ?string $queue = null)
     {
         $queue = $this->getQueue($queue);
 
@@ -182,11 +189,11 @@ class MongoQueue extends Queue
      *
      * @param string $queue
      * @param \StdClass $job
-     * @param int $delay
+     * @param DateInterval|int $delay
      *
      * @return mixed
      */
-    public function release($queue, $job, $delay)
+    public function release(string $queue, StdClass $job, $delay)
     {
         return $this->pushToDatabase($delay, $queue, $job->payload, $job->attempts);
     }
@@ -196,9 +203,9 @@ class MongoQueue extends Queue
      *
      * @param $id
      *
-     * @return null|Job
+     * @return null|JobContractInterface
      */
-    public function getJobById($id)
+    public function getJobById($id): ?JobContractInterface
     {
         $job = $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
 
@@ -207,7 +214,7 @@ class MongoQueue extends Queue
         } else {
             $job = (object)$job;
 
-            return new MongoJob($this->container, $this, $job, $job->queue);
+            return new MongoJobContract($this->resolver, $this, $job, $job->queue);
         }
     }
 
@@ -219,7 +226,7 @@ class MongoQueue extends Queue
      *
      * @return int
      */
-    public function deleteReserved($queue, $id): int
+    public function deleteReserved(string $queue, $id): int
     {
         $query = [
             '_id' => new \MongoDB\BSON\ObjectID($id),
@@ -242,9 +249,9 @@ class MongoQueue extends Queue
     /**
      * Set the expiration time in seconds.
      *
-     * @param int|null $seconds
+     * @param int $seconds
      */
-    public function setExpire($seconds)
+    public function setExpire(int $seconds)
     {
         $this->expire = $seconds;
     }
@@ -256,7 +263,7 @@ class MongoQueue extends Queue
      *
      * @return int
      */
-    public function size($queue = null)
+    public function size(?string $queue = null): int
     {
         if ($queue) {
             return $this->getCollection()->count(['queue' => $queue]);
@@ -268,11 +275,11 @@ class MongoQueue extends Queue
     /**
      * Check if can run process depend on limits
      *
-     * @param Job $job
+     * @param JobContractInterface $job
      *
      * @return bool
      */
-    public function canRunJob(Job $job)
+    public function canRunJob(JobContractInterface $job): bool
     {
         return $this->getCollection()->count([
                 'reserved' => 1,
@@ -283,9 +290,9 @@ class MongoQueue extends Queue
     /**
      * Mark the given job ID as reserved.
      *
-     * @param Job $job
+     * @param JobContractInterface $job
      */
-    public function markJobAsReserved($job)
+    public function markJobAsReserved(JobContractInterface $job)
     {
         $attempts = $job->attempts() + 1;
         $reserved_at = $this->currentTime();
@@ -302,7 +309,7 @@ class MongoQueue extends Queue
     /**
      * Push a raw payload to the mongo with a given delay.
      *
-     * @param DateTime|int $delay
+     * @param DateInterval|int $delay
      * @param string|null $queue
      * @param string $payload
      * @param int $attempts
@@ -319,15 +326,15 @@ class MongoQueue extends Queue
     /**
      * Get the "available at" UNIX timestamp.
      *
-     * @param DateTime|int $delay
+     * @param DateInterval|int $delay
      *
      * @return int
      */
-    protected function getAvailableAt($delay)
+    protected function getAvailableAt($delay = 0)
     {
-        $availableAt = $delay instanceof DateTime ? $delay : Carbon::now()->addSeconds($delay);
-
-        return $availableAt->getTimestamp();
+        return $delay instanceof DateInterval
+            ? (new DateTime())->add($delay)->getTimestamp()
+            : time() + $delay;
     }
 
     /**
@@ -347,7 +354,7 @@ class MongoQueue extends Queue
      *
      * @param string|null $queue
      *
-     * @return null|Job
+     * @return null|JobContractInterface
      */
     protected function getNextAvailableJob($queue)
     {
@@ -362,7 +369,7 @@ class MongoQueue extends Queue
                 'sort' => ['_id' => 1],
             ]);
 
-        return $job ? new MongoJob($this->container, $this, (object)$job, ((object)$job)->queue) : null;
+        return $job ? new MongoJobContract($this->resolver, $this, (object)$job, ((object)$job)->queue) : null;
     }
 
     /**
@@ -409,7 +416,7 @@ class MongoQueue extends Queue
     protected function isReservedButExpired()
     {
         return [
-            'reserved_at' => ['$lte' => Carbon::now()->subSeconds($this->expire)->getTimestamp()],
+            'reserved_at' => ['$lte' => time() - $this->expire],
         ];
     }
 
@@ -421,23 +428,5 @@ class MongoQueue extends Queue
     protected function getCollection(): Collection
     {
         return $this->mongo->getDatabase()->selectCollection($this->collection);
-    }
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function putContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Container $container
-     *
-     * @throws Exception
-     */
-    public function setContainer(Container $container)
-    {
-        // Nothing
     }
 }

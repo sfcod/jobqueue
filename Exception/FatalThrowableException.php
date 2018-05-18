@@ -1,6 +1,6 @@
 <?php
 
-namespace SfCod\QueueBundle\Base;
+namespace SfCod\QueueBundle\Exception;
 
 use Exception;
 
@@ -9,10 +9,10 @@ use Exception;
  *
  * @author Virchenko Maksim <muslim1992@gmail.com>
  */
-class FatalThrowableError extends Exception
+class FatalThrowableException extends Exception
 {
     /**
-     * FatalThrowableError constructor.
+     * FatalThrowableException constructor.
      *
      * @param Exception $e
      * @param int $code

@@ -1,9 +1,14 @@
 <?php
 
-namespace SfCod\QueueBundle\Service;
+namespace SfCod\QueueBundle\Base;
 
 use MongoDB\Database;
 
+/**
+ * Interface MongoDriverInterface
+ *
+ * @package SfCod\QueueBundle\Service
+ */
 interface MongoDriverInterface
 {
     /**

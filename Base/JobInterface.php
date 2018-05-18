@@ -2,7 +2,7 @@
 
 namespace SfCod\QueueBundle\Base;
 
-use Illuminate\Queue\Jobs\Job;
+use SfCod\QueueBundle\Job\JobContract;
 
 /**
  * Base interface for handlers
@@ -14,8 +14,8 @@ interface JobInterface
     /**
      * Run command from queue
      *
-     * @param Job $job
+     * @param JobContract $job
      * @param array $data
      */
-    public function fire(Job $job, array $data);
+    public function fire(JobContract $job, array $data);
 }

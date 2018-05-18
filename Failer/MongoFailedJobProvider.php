@@ -2,10 +2,9 @@
 
 namespace SfCod\QueueBundle\Failer;
 
-use Carbon\Carbon;
-use Illuminate\Queue\Failed\FailedJobProviderInterface;
+use Exception;
 use MongoDB\Collection;
-use SfCod\QueueBundle\Service\MongoDriverInterface;
+use SfCod\QueueBundle\Base\MongoDriverInterface;
 
 /**
  * Mongo provider for failed jobs
@@ -46,18 +45,18 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      * @param string $connection
      * @param string $queue
      * @param string $payload
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return int|null|void
      */
-    public function log($connection, $queue, $payload, $exception)
+    public function log(string $connection, string $queue, string $payload, Exception $exception)
     {
         $this->getCollection()->insertOne([
             'connection' => $connection,
             'queue' => $queue,
             'payload' => $payload,
             'exception' => $exception->getMessage(),
-            'failed_at' => Carbon::now(),
+            'failed_at' => time(),
         ]);
     }
 
@@ -66,7 +65,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return array
      */
-    public function all()
+    public function all(): array
     {
         $result = [];
         $data = $this->getCollection()->find([], [
@@ -83,7 +82,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * Get a single failed job.
      *
-     * @param mixed $id
+     * @param string $id
      *
      * @return array
      */
@@ -95,11 +94,11 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * Delete a single failed job from storage.
      *
-     * @param mixed $id
+     * @param string $id
      *
      * @return bool
      */
-    public function forget($id)
+    public function forget($id): bool
     {
         return (bool)$this->getCollection()->deleteOne(['_id' => new \MongoDB\BSON\ObjectID($id)])->getDeletedCount();
     }

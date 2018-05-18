@@ -2,7 +2,7 @@
 
 namespace SfCod\QueueBundle\Tests\Data;
 
-use Illuminate\Queue\Jobs\Job;
+use SfCod\QueueBundle\Job\JobContract;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @package SfCod\QueueBundle\Tests
  */
-class TestJob extends Job
+class TestJobContract extends JobContract
 {
     /**
      * @var ContainerInterface
@@ -44,7 +44,7 @@ class TestJob extends Job
     /**
      * Get container instance
      *
-     * @return \Illuminate\Container\Container|ContainerInterface
+     * @return ContainerInterface
      */
     public function getContainer()
     {
