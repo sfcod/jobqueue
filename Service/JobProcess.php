@@ -1,9 +1,8 @@
 <?php
 
-namespace SfCod\QueueBundle;
+namespace SfCod\QueueBundle\Service;
 
-use Illuminate\Queue\Jobs\Job;
-use SfCod\QueueBundle\Job\MongoJob;
+use SfCod\QueueBundle\Job\JobContractInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -35,6 +34,14 @@ class JobProcess
      */
     public $binaryArgs;
 
+    /**
+     * JobProcess constructor.
+     *
+     * @param string $scriptName
+     * @param string $binPath
+     * @param string $binary
+     * @param string $binaryArgs
+     */
     public function __construct(
         string $scriptName,
         string $binPath,
@@ -50,12 +57,12 @@ class JobProcess
     /**
      * Get the Artisan process for the job id.
      *
-     * @param Job|MongoJob $job
+     * @param JobContractInterface $job
      * @param string $connectionName
      *
      * @return Process
      */
-    public function getProcess(Job $job, string $connectionName): Process
+    public function getProcess(JobContractInterface $job, string $connectionName): Process
     {
         $cmd = '%s %s job-queue:run-job %s --connection=%s --queue=%s --env=%s';
         $cmd = $this->getBackgroundCommand($cmd);

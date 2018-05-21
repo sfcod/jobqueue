@@ -14,7 +14,7 @@ interface ExceptionHandlerInterface
     /**
      * Report or log an exception.
      *
-     * @param  \Exception $e
+     * @param Exception $e
      *
      * @return void
      */
@@ -23,8 +23,8 @@ interface ExceptionHandlerInterface
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Exception $e
+     * @param $request
+     * @param Exception $e
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -34,7 +34,7 @@ interface ExceptionHandlerInterface
      * Render an exception to the console.
      *
      * @param  \Symfony\Component\Console\Output\OutputInterface $output
-     * @param  \Exception $e
+     * @param  Exception $e
      *
      * @return void
      */

@@ -1,6 +1,6 @@
 <?php
 
-namespace SfCod\QueueBundle;
+namespace SfCod\QueueBundle\Worker;
 
 /**
  * Class WorkerOptions

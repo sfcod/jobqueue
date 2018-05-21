@@ -2,10 +2,10 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use Illuminate\Queue\Jobs\Job;
-use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
+use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
+use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Service\JobQueue;
-use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,7 +27,7 @@ class RetryCommand extends Command
     protected $queue;
 
     /**
-     * @var MongoFailedJobProvider
+     * @var FailedJobProviderInterface
      */
     protected $failer;
 
@@ -37,7 +37,7 @@ class RetryCommand extends Command
      * @param JobQueue $queue
      * @param MongoDriverInterface $mongoDriver
      */
-    public function __construct(JobQueue $queue, MongoFailedJobProvider $failer)
+    public function __construct(JobQueue $queue, FailedJobProviderInterface $failer)
     {
         $this->queue = $queue;
         $this->failer = $failer;
@@ -87,7 +87,7 @@ class RetryCommand extends Command
     /**
      * Retry job
      *
-     * @param Job $job
+     * @param JobContract $job
      *
      * @return bool
      */

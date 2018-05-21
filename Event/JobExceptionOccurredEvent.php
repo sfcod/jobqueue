@@ -2,6 +2,8 @@
 
 namespace SfCod\QueueBundle\Event;
 
+use Exception;
+use SfCod\QueueBundle\Job\JobContractInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -24,7 +26,7 @@ class JobExceptionOccurredEvent extends Event
     /**
      * The job instance.
      *
-     * @var \Illuminate\Contracts\Queue\Job
+     * @var JobContractInterface
      */
     public $job;
 
@@ -39,11 +41,11 @@ class JobExceptionOccurredEvent extends Event
      * Create a new event instance.
      *
      * @param string $connectionName
-     * @param \Illuminate\Contracts\Queue\Job $job
-     * @param \Exception $exception
+     * @param JobContractInterface $job
+     * @param Exception $exception
      * @param array $config
      */
-    public function __construct($connectionName, $job, $exception, array $config = [])
+    public function __construct(string $connectionName, JobContractInterface $job, Exception $exception, array $config = [])
     {
         $this->job = $job;
         $this->exception = $exception;

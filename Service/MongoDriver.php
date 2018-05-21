@@ -4,6 +4,7 @@ namespace SfCod\QueueBundle\Service;
 
 use MongoDB\Client;
 use MongoDB\Database;
+use SfCod\QueueBundle\Base\MongoDriverInterface;
 
 /**
  * Class MongoDriver

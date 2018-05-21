@@ -2,9 +2,6 @@
 
 namespace SfCod\QueueBundle\Base;
 
-use Illuminate\Queue\Capsule\Manager;
-use Illuminate\Queue\QueueManager;
-
 /**
  * Job queue interface
  *
@@ -12,13 +9,6 @@ use Illuminate\Queue\QueueManager;
  */
 interface JobQueueInterface
 {
-    /**
-     * Get queue manager instance
-     *
-     * @return QueueManager
-     */
-    public function getQueueManager(): QueueManager;
-
     /**
      * Push new job to queue
      *

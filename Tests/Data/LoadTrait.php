@@ -4,8 +4,8 @@ namespace SfCod\QueueBundle\Tests\Data;
 
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\DependencyInjection\QueueExtension;
-use SfCod\QueueBundle\Service\MongoDriverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Dotenv\Exception\PathException;
