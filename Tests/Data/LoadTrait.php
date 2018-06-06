@@ -3,6 +3,7 @@
 namespace SfCod\QueueBundle\Tests\Data;
 
 use Monolog\Logger;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\DependencyInjection\QueueExtension;
@@ -10,10 +11,22 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Dotenv\Exception\PathException;
 
+/**
+ * Trait LoadTrait
+ * @package SfCod\QueueBundle\Tests\Data
+ */
 trait LoadTrait
 {
+    /**
+     * @var ContainerInterface
+     */
     protected $container;
 
+    /**
+     * Configure container
+     *
+     * @throws \ReflectionException
+     */
     protected function configure()
     {
         $dotenv = new Dotenv();
