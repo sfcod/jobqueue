@@ -34,7 +34,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
      */
     public function report(Exception $e)
     {
-        $this->logger->error($e);
+        $this->logger->error($e->getMessage(), ['exception' => $e]);
     }
 
     /**
