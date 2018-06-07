@@ -334,7 +334,7 @@ class MongoQueue extends Queue
     {
         return $delay instanceof DateInterval
             ? (new DateTime())->add($delay)->getTimestamp()
-            : time() + $delay;
+            : $this->currentTime() + $delay;
     }
 
     /**
@@ -416,7 +416,7 @@ class MongoQueue extends Queue
     protected function isReservedButExpired()
     {
         return [
-            'reserved_at' => ['$lte' => time() - $this->expire],
+            'reserved_at' => ['$lte' => $this->currentTime() - $this->expire],
         ];
     }
 
