@@ -9,7 +9,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class JobResolverTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Service
  */
 class JobResolverTest extends TestCase

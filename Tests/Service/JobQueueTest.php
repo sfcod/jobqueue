@@ -8,11 +8,12 @@ use SfCod\QueueBundle\Queue\QueueInterface;
 use SfCod\QueueBundle\Service\JobQueue;
 use SfCod\QueueBundle\Service\QueueManager;
 use SfCod\QueueBundle\Tests\Data\LoadTrait;
-use SfCod\SocketIoBundle\Service\Broadcast;
 
 /**
  * Class JobQueueTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Service
  */
 class JobQueueTest extends TestCase
@@ -108,7 +109,7 @@ class JobQueueTest extends TestCase
     {
         $jobs = [];
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $jobs[] = uniqid('job_' . $i);
         }
 

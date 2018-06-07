@@ -2,16 +2,18 @@
 
 namespace SfCod\QueueBundle\Tests\Failer;
 
+use Exception;
 use Helmich\MongoMock\MockDatabase;
 use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
-use Exception;
 
 /**
  * Class MongoFailedJobProviderTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Failer
  */
 class MongoFailedJobProviderTest extends TestCase
@@ -48,7 +50,7 @@ class MongoFailedJobProviderTest extends TestCase
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $provider->log($connection, $queue, $payload, $exception);
         }
 
@@ -115,7 +117,7 @@ class MongoFailedJobProviderTest extends TestCase
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $provider->log($connection, $queue, $payload, $exception);
         }
 

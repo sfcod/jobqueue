@@ -2,16 +2,18 @@
 
 namespace SfCod\QueueBundle\Tests\Job;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Job\MongoJobContract;
 use SfCod\QueueBundle\Queue\QueueInterface;
-use Exception;
 
 /**
  * Class MongoJobContractTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Job
  */
 class MongoJobContractTest extends TestCase

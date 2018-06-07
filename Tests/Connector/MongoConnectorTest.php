@@ -10,7 +10,9 @@ use SfCod\QueueBundle\Queue\MongoQueue;
 
 /**
  * Class MongoConnectorTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Connector
  */
 class MongoConnectorTest extends TestCase

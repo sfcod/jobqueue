@@ -2,13 +2,15 @@
 
 namespace SfCod\QueueBundle\Tests\Exception;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Exception\FatalThrowableException;
-use Exception;
 
 /**
  * Class FatalThrowableExceptionTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Exception
  */
 class FatalThrowableExceptionTest extends TestCase

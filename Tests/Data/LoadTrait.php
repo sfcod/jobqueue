@@ -13,6 +13,7 @@ use Symfony\Component\Dotenv\Exception\PathException;
 
 /**
  * Trait LoadTrait
+ *
  * @package SfCod\QueueBundle\Tests\Data
  */
 trait LoadTrait

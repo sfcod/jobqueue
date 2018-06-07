@@ -2,15 +2,17 @@
 
 namespace SfCod\QueueBundle\Tests\Event;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Event\JobExceptionOccurredEvent;
 use SfCod\QueueBundle\Job\JobContractInterface;
-use Exception;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class JobExceptionOccurredEventTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Event
  */
 class JobExceptionOccurredEventTest extends TestCase
