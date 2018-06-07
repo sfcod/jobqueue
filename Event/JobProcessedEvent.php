@@ -20,14 +20,14 @@ class JobProcessedEvent extends Event
      *
      * @var string
      */
-    public $connectionName;
+    protected $connectionName;
 
     /**
      * The job instance.
      *
      * @var JobContractInterface
      */
-    public $job;
+    protected $job;
 
     /**
      * Create a new event instance.
@@ -36,9 +36,25 @@ class JobProcessedEvent extends Event
      * @param JobContractInterface $job
      * @param array $config
      */
-    public function __construct(string $connectionName, JobContractInterface $job, array $config = [])
+    public function __construct(string $connectionName, JobContractInterface $job)
     {
         $this->job = $job;
         $this->connectionName = $connectionName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConnectionName(): string
+    {
+        return $this->connectionName;
+    }
+
+    /**
+     * @return JobContractInterface
+     */
+    public function getJob(): JobContractInterface
+    {
+        return $this->job;
     }
 }

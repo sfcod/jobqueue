@@ -21,21 +21,21 @@ class JobExceptionOccurredEvent extends Event
      *
      * @var string
      */
-    public $connectionName;
+    protected $connectionName;
 
     /**
      * The job instance.
      *
      * @var JobContractInterface
      */
-    public $job;
+    protected $job;
 
     /**
      * The exception instance.
      *
      * @var \Exception
      */
-    public $exception;
+    protected $exception;
 
     /**
      * Create a new event instance.
@@ -43,12 +43,35 @@ class JobExceptionOccurredEvent extends Event
      * @param string $connectionName
      * @param JobContractInterface $job
      * @param Exception $exception
-     * @param array $config
      */
-    public function __construct(string $connectionName, JobContractInterface $job, Exception $exception, array $config = [])
+    public function __construct(string $connectionName, JobContractInterface $job, Exception $exception)
     {
         $this->job = $job;
         $this->exception = $exception;
         $this->connectionName = $connectionName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConnectionName(): string
+    {
+        return $this->connectionName;
+    }
+
+    /**
+     * @return JobContractInterface
+     */
+    public function getJob(): JobContractInterface
+    {
+        return $this->job;
+    }
+
+    /**
+     * @return Exception
+     */
+    public function getException(): Exception
+    {
+        return $this->exception;
     }
 }
