@@ -4,6 +4,7 @@ namespace SfCod\QueueBundle\Failer;
 
 use Exception;
 use MongoDB\Collection;
+use MongoDB\DeleteResult;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 
 /**
@@ -98,9 +99,15 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return bool
      */
-    public function forget($id): bool
+    public function forget($id)
     {
-        return (bool)$this->getCollection()->deleteOne(['_id' => new \MongoDB\BSON\ObjectID($id)])->getDeletedCount();
+        $result = $this->getCollection()->deleteOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
+
+        if ($result instanceof DeleteResult) {
+            return (bool)$result->getDeletedCount();
+        }
+
+        return true;
     }
 
     /**

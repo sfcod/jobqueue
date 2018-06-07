@@ -13,6 +13,9 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class WorkerStoppingEventTest extends TestCase
 {
+    /**
+     * Test event
+     */
     public function testEvent()
     {
         $event = new WorkerStoppingEvent();
