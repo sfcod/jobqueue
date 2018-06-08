@@ -76,39 +76,4 @@ class Options
         $this->timeout = $timeout;
         $this->maxTries = $maxTries;
     }
-
-    public function getBinaryArgs(): string
-    {
-        return getenv('BINARY_ARGS') ?? '';
-    }
-
-    public function getBinPath()
-    {
-        return getenv('BIN_PATH');
-    }
-
-    public function getScriptName(): string
-    {
-        return getenv('SCRIPT_NAME');
-    }
-
-    /**
-     * Get the escaped PHP Binary from the configuration
-     *
-     * @return string
-     */
-    public function getPhpBinary(): string
-    {
-        $path = $this->binary;
-        if (!defined('PHP_WINDOWS_VERSION_BUILD')) {
-            $path = escapeshellarg($path);
-        }
-
-        $args = $this->binaryArgs;
-        if (is_array($args)) {
-            $args = implode(' ', $args);
-        }
-
-        return trim($path . ' ' . $args);
-    }
 }
