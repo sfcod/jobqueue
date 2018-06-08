@@ -87,7 +87,7 @@ class RetryCommand extends Command
     /**
      * Retry job
      *
-     * @param JobContractInterface $job
+     * @param \stdClass $job
      *
      * @return bool
      */
@@ -97,7 +97,7 @@ class RetryCommand extends Command
 
         if ($payload && isset($payload['job'], $payload['data'])) {
             $this->queue->push($payload['job'], $payload['data']);
-            $this->failer->forget($job->getJobId());
+            $this->failer->forget($job->_id);
 
             return true;
         }
