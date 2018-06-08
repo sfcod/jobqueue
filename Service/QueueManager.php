@@ -79,7 +79,7 @@ class QueueManager
      *
      * @return void
      */
-    public function addConnector(string $driver, $resolver)
+    public function addConnector(string $driver, ConnectorInterface $resolver)
     {
         $this->connectors[$driver] = $resolver;
     }
