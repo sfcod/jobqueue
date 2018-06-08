@@ -5,6 +5,9 @@ namespace SfCod\QueueBundle\Job;
 use Exception;
 use SfCod\QueueBundle\Base\InteractWithTimeTrait;
 use SfCod\QueueBundle\Base\JobInterface;
+use SfCod\QueueBundle\Base\JobResolverInterface;
+use SfCod\QueueBundle\Entity\Job;
+use SfCod\QueueBundle\Queue\QueueInterface;
 
 /**
  * Class Job
@@ -14,7 +17,7 @@ use SfCod\QueueBundle\Base\JobInterface;
  *
  * @package SfCod\QueueBundle\Base
  */
-abstract class JobContract implements JobContractInterface
+class JobContract implements JobContractInterface
 {
     use InteractWithTimeTrait;
 
@@ -61,6 +64,41 @@ abstract class JobContract implements JobContractInterface
     protected $queue;
 
     /**
+     * Job resolver
+     *
+     * @var JobResolverInterface
+     */
+    protected $resolver;
+
+    /**
+     * The database queue instance.
+     *
+     * @var QueueInterface
+     */
+    protected $database;
+
+    /**
+     * The database job payload.
+     *
+     * @var Job
+     */
+    protected $job;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param JobResolverInterface $resolver
+     * @param QueueInterface $database
+     * @param StdClass|MongoDB\Model\BSONDocument $job
+     */
+    public function __construct(JobResolverInterface $resolver, QueueInterface $database, Job $job)
+    {
+        $this->resolver = $resolver;
+        $this->database = $database;
+        $this->job = $job;
+    }
+
+    /**
      * Fire the job.
      *
      * @return void
@@ -74,12 +112,28 @@ abstract class JobContract implements JobContractInterface
 
     /**
      * Delete the job from the queue.
-     *
-     * @return void
      */
     public function delete()
     {
         $this->deleted = true;
+
+        $this->database->deleteReserved($this->job->getQueue(), $this->getJobId());
+    }
+
+    /**
+     * Process an exception that caused the job to fail.
+     *
+     * @param Exception $e
+     *
+     * @return void
+     */
+    public function failed($e)
+    {
+        $this->markAsFailed();
+
+        if (method_exists($this->instance = $this->resolve($this->getName()), 'failed')) {
+            $this->instance->failed($this->getData(), $e);
+        }
     }
 
     /**
@@ -145,29 +199,13 @@ abstract class JobContract implements JobContractInterface
     }
 
     /**
-     * Process an exception that caused the job to fail.
-     *
-     * @param Exception $e
-     *
-     * @return void
-     */
-    public function failed($e)
-    {
-        $this->markAsFailed();
-
-        if (method_exists($this->instance = $this->resolve($this->getName()), 'failed')) {
-            $this->instance->failed($this->getData(), $e);
-        }
-    }
-
-    /**
      * Get the decoded body of the job.
      *
      * @return array
      */
     public function payload(): array
     {
-        return json_decode($this->getRawBody(), true);
+        return $this->job->getPayload();
     }
 
     /**
@@ -237,7 +275,37 @@ abstract class JobContract implements JobContractInterface
      */
     public function getQueue(): ?string
     {
-        return $this->queue;
+        return $this->job->getQueue();
+    }
+
+    /**
+     * Get the number of times the job has been attempted.
+     *
+     * @return int
+     */
+    public function attempts(): int
+    {
+        return $this->job->getAttempts();
+    }
+
+    /**
+     * Check if job reserved
+     *
+     * @return bool
+     */
+    public function reserved(): bool
+    {
+        return $this->job->isReserved();
+    }
+
+    /**
+     * Get reserved at time
+     *
+     * @return int
+     */
+    public function reservedAt(): int
+    {
+        return $this->job->getReservedAt();
     }
 
     /**
@@ -245,21 +313,30 @@ abstract class JobContract implements JobContractInterface
      *
      * @return string
      */
-    abstract public function getJobId(): string;
+    public function getJobId(): string
+    {
+        return $this->job->getId();
+    }
 
     /**
-     * Get the raw body of the job.
+     * Get the raw body string for the job.
      *
      * @return string
      */
-    abstract public function getRawBody(): string;
+    public function getRawBody(): string
+    {
+        return json_encode($this->job->getPayload());
+    }
 
     /**
-     * Resolve the given class
+     * Resolve job
      *
      * @param string $class
      *
      * @return JobInterface
      */
-    abstract protected function resolve(string $class): JobInterface;
+    protected function resolve(string $class): JobInterface
+    {
+        return $this->resolver->resolve($class);
+    }
 }

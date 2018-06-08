@@ -3,8 +3,8 @@
 namespace SfCod\QueueBundle\Command;
 
 use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
-use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Service\JobQueue;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -87,17 +87,17 @@ class RetryCommand extends Command
     /**
      * Retry job
      *
-     * @param \stdClass $job
+     * @param Job $job
      *
      * @return bool
      */
-    protected function retryJob($job): bool
+    protected function retryJob(Job $job): bool
     {
-        $payload = json_decode($job->payload, true);
+        $payload = $job->getPayload();
 
         if ($payload && isset($payload['job'], $payload['data'])) {
             $this->queue->push($payload['job'], $payload['data']);
-            $this->failer->forget($job->_id);
+            $this->failer->forget($job->getId());
 
             return true;
         }
