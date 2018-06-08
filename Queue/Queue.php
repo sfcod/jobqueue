@@ -63,7 +63,7 @@ abstract class Queue implements QueueInterface
      */
     public function bulk(array $jobs, array $data = [], ?string $queue = null)
     {
-        foreach ((array)$jobs as $job) {
+        foreach ($jobs as $job) {
             $this->push($job, $data, $queue);
         }
     }

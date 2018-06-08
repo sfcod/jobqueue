@@ -117,7 +117,7 @@ class MongoQueue extends Queue
     }
 
     /**
-     * Push a new job onto the queue.
+     * Check if job exists in the queue.
      *
      * @param string $job
      * @param array $data
@@ -128,7 +128,7 @@ class MongoQueue extends Queue
     public function exists(string $job, array $data = [], ?string $queue = null): bool
     {
         return null !== $this->getCollection()->findOne([
-                'queue' => $queue,
+                'queue' => $this->getQueue($queue),
                 'payload' => $this->createPayload($job, $data),
             ]);
     }
