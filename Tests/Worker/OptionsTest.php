@@ -7,7 +7,9 @@ use SfCod\QueueBundle\Worker\Options;
 
 /**
  * Class OptionsTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Worker
  */
 class OptionsTest extends TestCase

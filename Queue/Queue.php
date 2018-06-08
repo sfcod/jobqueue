@@ -127,7 +127,7 @@ abstract class Queue implements QueueInterface
      *
      * @return $this
      */
-    public function setConnectionName(string $name)
+    public function setConnectionName(string $name): QueueInterface
     {
         $this->connectionName = $name;
 

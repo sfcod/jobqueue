@@ -4,7 +4,6 @@ namespace SfCod\QueueBundle\Command;
 
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
-use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Service\JobQueue;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

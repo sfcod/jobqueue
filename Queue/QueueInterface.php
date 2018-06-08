@@ -122,7 +122,7 @@ interface QueueInterface
      *
      * @return $this
      */
-    public function setConnectionName(string $name);
+    public function setConnectionName(string $name): QueueInterface;
 
     /**
      * Check if job can be runned.
