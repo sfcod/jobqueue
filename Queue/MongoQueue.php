@@ -179,9 +179,9 @@ class MongoQueue extends Queue
 
         $records = array_map(function ($job) use ($queue, $data, $availableAt) {
             return $this->buildDatabaseRecord($queue, $this->createPayload($job, $data), $availableAt);
-        }, (array)$jobs);
+        }, $jobs);
 
-        return $this->getCollection()->insertOne($records);
+        return $this->getCollection()->insertMany($records);
     }
 
     /**

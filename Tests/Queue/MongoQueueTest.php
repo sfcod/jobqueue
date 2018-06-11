@@ -154,6 +154,36 @@ class MongoQueueTest extends TestCase
     }
 
     /**
+     * Test pushing bulk
+     */
+    public function testBulk()
+    {
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+        $delay = rand(60, 3600);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        for ($i = 0; $i < 10; ++$i) {
+            $jobs[] = $jobName . $i;
+        }
+
+        $mongoQueue->bulk($jobs, $data);
+
+        $count = $database->selectCollection($collection)->count();
+
+        $this->assertEquals(10, $count);
+    }
+
+    public function testRelease()
+    {
+        //@TODO
+    }
+
+    /**
      * Mock mongo queue
      *
      * @param Database $database
