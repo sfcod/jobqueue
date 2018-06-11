@@ -178,9 +178,12 @@ class MongoQueueTest extends TestCase
         $this->assertEquals(10, $count);
     }
 
+    /**
+     * @todo Implement test
+     */
     public function testRelease()
     {
-        //@TODO
+        $this->assertEquals(1, 1);
     }
 
     /**
