@@ -13,6 +13,9 @@ cache:
   directories:
     - $HOME/.composer/cache
     - vendor
+before_script:  
+    - sudo pecl install mongo
+    - echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:
   - travis_retry composer self-update && composer --version
