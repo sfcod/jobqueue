@@ -14,7 +14,7 @@ cache:
     - vendor
 
 install:
-  - sudo pecl install mongo
+  - pecl install mongo
   - echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
