@@ -162,5 +162,5 @@ sfcod_queue:
 
 You can run tests using prepared configuration xml file:
 ```php
-php bin/phpunit --configuration ./vendor/sfcod/jobqueue/phpunit.xml.dist
+php bin/phpunit --configuration ./vendor/sfcod/jobqueue/phpunit.xml.dist --bootstrap ./vendor/autoload.php
 ```

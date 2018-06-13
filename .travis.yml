@@ -22,4 +22,4 @@ install:
 
 script:
   - vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --diff
-  - phpunit --verbose $PHPUNIT_FLAGS
+  - phpunit --verbose $PHPUNIT_FLAGS --bootstrap ./vendor/autoload.php

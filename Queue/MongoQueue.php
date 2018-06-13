@@ -193,7 +193,7 @@ class MongoQueue extends Queue
      *
      * @return mixed
      */
-    public function release(string $queue, StdClass $job, $delay)
+    public function release(string $queue, $job, $delay)
     {
         return $this->pushToDatabase($delay, $queue, $job->payload, $job->attempts);
     }
@@ -224,16 +224,22 @@ class MongoQueue extends Queue
      * @param string $queue
      * @param string $id
      *
-     * @return int
+     * @return bool
      */
-    public function deleteReserved(string $queue, $id): int
+    public function deleteReserved(string $queue, $id): bool
     {
         $query = [
             '_id' => new \MongoDB\BSON\ObjectID($id),
             'queue' => $queue,
         ];
 
-        return $this->getCollection()->deleteOne($query)->getDeletedCount();
+        $result = $this->getCollection()->deleteOne($query);
+
+        if ($result instanceof DeleteResult) {
+            return (bool)$result->getDeletedCount();
+        }
+
+        return true;
     }
 
     /**

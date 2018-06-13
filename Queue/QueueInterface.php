@@ -157,7 +157,7 @@ interface QueueInterface
      * @param string $queue
      * @param $id
      *
-     * @return int
+     * @return bool
      */
-    public function deleteReserved(string $queue, $id): int;
+    public function deleteReserved(string $queue, $id): bool;
 }

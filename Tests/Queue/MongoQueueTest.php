@@ -7,6 +7,7 @@ use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
 
 /**
@@ -119,7 +120,8 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->pushRaw(json_encode(['job' => $jobName, 'data' => $data]));
 
-        $this->assertEquals(1, $database->selectCollection($collection)->count());
+        $count = $database->selectCollection($collection)->count();
+        $this->assertEquals(1, $count);
 
         $job = $database->selectCollection($collection)->findOne();
 
@@ -179,11 +181,123 @@ class MongoQueueTest extends TestCase
     }
 
     /**
-     * @todo Implement test
+     * Test release
      */
     public function testRelease()
     {
-        $this->assertEquals(1, 1);
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $mongoQueue->push($jobName, $data);
+
+        $job = $database->selectCollection($collection)->findOne();
+
+        $database->selectCollection($collection)->deleteMany([]);
+
+        $mongoQueue->release($job->queue, $job, 0);
+
+        $count = $database->selectCollection($collection)->count();
+
+        $this->assertEquals(1, $count);
+    }
+
+    /**
+     * Test getting job by id
+     */
+    public function testGetJobById()
+    {
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $mongoQueue->push($jobName, $data);
+
+        $job = $database->selectCollection($collection)->findOne();
+
+        $jobContract = $mongoQueue->getJobById($job->_id);
+
+        $this->assertInstanceOf(JobContractInterface::class, $jobContract);
+        $this->assertEquals($jobContract->getName(), $jobName);
+    }
+
+    /**
+     * Test deleting reserved
+     */
+    public function testDeleteReserved()
+    {
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $mongoQueue->push($jobName, $data);
+
+        $count = $database->selectCollection($collection)->count();
+
+        $this->assertEquals(1, $count);
+
+        $job = $database->selectCollection($collection)->findOne();
+        $result = $mongoQueue->deleteReserved($job->queue, $job->_id);
+
+        $this->assertTrue($result);
+
+        $count = $database->selectCollection($collection)->count();
+
+        $this->assertEquals(0, $count);
+    }
+
+    /**
+     * Test expire queue
+     */
+    public function testExpire()
+    {
+        $collection = uniqid('collection_');
+        $expire = rand(1, 99999);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $mongoQueue->setExpire($expire);
+
+        $this->assertEquals($expire, $mongoQueue->getExpire());
+    }
+
+    /**
+     * Test queue's size
+     */
+    public function testSize()
+    {
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        for ($i = 0; $i < 10; ++$i) {
+            $mongoQueue->push($jobName, $data);
+        }
+
+        $job = $database->selectCollection($collection)->findOne();
+
+        $count = $database->selectCollection($collection)->count();
+
+        $this->assertEquals($count, $mongoQueue->size());
+        $this->assertEquals($count, $mongoQueue->size($job->queue));
     }
 
     /**
