@@ -301,6 +301,61 @@ class MongoQueueTest extends TestCase
     }
 
     /**
+     * Test can run job
+     */
+    public function testCanRunJob()
+    {
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $mongoQueue->push($jobName, $data);
+
+        $job = $database->selectCollection($collection)->findOne();
+
+        /** @var JobContractInterface $jobContract */
+        $jobContract = $mongoQueue->getJobById($job->_id);
+
+        $canRun = $mongoQueue->canRunJob($jobContract);
+
+        $this->assertTrue($canRun);
+    }
+
+    /**
+     * Test mark job as reserved
+     */
+    public function testMarkJobAsReserved()
+    {
+        $collection = uniqid('collection_');
+        $jobName = uniqid('job_');
+        $data = range(1, 10);
+
+        $database = new MockDatabase();
+
+        $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $mongoQueue->push($jobName, $data);
+
+        $job = $database->selectCollection($collection)->findOne();
+        $attempts = $job->attempts;
+
+        /** @var JobContractInterface $jobContract */
+        $jobContract = $mongoQueue->getJobById($job->_id);
+
+        $mongoQueue->markJobAsReserved($jobContract);
+
+        $reservedJob = $database->selectCollection($collection)->findOne();
+
+        $this->assertTrue((bool)$reservedJob->reserved);
+        $this->assertGreaterThan($attempts, $reservedJob->attempts);
+        $this->assertNotNull($reservedJob->reserved_at);
+    }
+
+    /**
      * Mock mongo queue
      *
      * @param Database $database
