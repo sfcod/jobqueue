@@ -157,3 +157,10 @@ sfcod_queue:
     connections:
         default: { driver: 'your-connector', collection: 'queue_jobs' queue: 'default', expire: 60, limit: 2 }
 ```
+
+##### Testing:
+
+You can run tests using prepared configuration xml file:
+```php
+php bin/phpunit --configuration ./vendor/sfcod/jobqueue/phpunit.xml.dist --bootstrap ./vendor/autoload.php
+```

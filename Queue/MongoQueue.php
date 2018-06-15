@@ -118,7 +118,7 @@ class MongoQueue extends Queue
     }
 
     /**
-     * Push a new job onto the queue.
+     * Check if job exists in the queue.
      *
      * @param string $job
      * @param array $data
@@ -129,7 +129,7 @@ class MongoQueue extends Queue
     public function exists(string $job, array $data = [], ?string $queue = null): bool
     {
         return null !== $this->getCollection()->findOne([
-                'queue' => $queue,
+                'queue' => $this->getQueue($queue),
                 'payload' => $this->createPayload($job, $data),
             ]);
     }
@@ -180,9 +180,9 @@ class MongoQueue extends Queue
 
         $records = array_map(function ($job) use ($queue, $data, $availableAt) {
             return $this->buildDatabaseRecord($queue, $this->createPayload($job, $data), $availableAt);
-        }, (array)$jobs);
+        }, $jobs);
 
-        return $this->getCollection()->insertOne($records);
+        return $this->getCollection()->insertMany($records);
     }
 
     /**
@@ -222,16 +222,22 @@ class MongoQueue extends Queue
      * @param string $queue
      * @param string $id
      *
-     * @return int
+     * @return bool
      */
-    public function deleteReserved(string $queue, $id): int
+    public function deleteReserved(string $queue, $id): bool
     {
         $query = [
             '_id' => new \MongoDB\BSON\ObjectID($id),
             'queue' => $queue,
         ];
 
-        return $this->getCollection()->deleteOne($query)->getDeletedCount();
+        $result = $this->getCollection()->deleteOne($query);
+
+        if ($result instanceof DeleteResult) {
+            return (bool)$result->getDeletedCount();
+        }
+
+        return true;
     }
 
     /**

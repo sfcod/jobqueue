@@ -63,7 +63,7 @@ abstract class Queue implements QueueInterface
      */
     public function bulk(array $jobs, array $data = [], ?string $queue = null)
     {
-        foreach ((array)$jobs as $job) {
+        foreach ($jobs as $job) {
             $this->push($job, $data, $queue);
         }
     }
@@ -127,7 +127,7 @@ abstract class Queue implements QueueInterface
      *
      * @return $this
      */
-    public function setConnectionName(string $name)
+    public function setConnectionName(string $name): QueueInterface
     {
         $this->connectionName = $name;
 

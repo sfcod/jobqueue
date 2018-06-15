@@ -2,6 +2,7 @@
 
 namespace SfCod\QueueBundle\Tests\Data;
 
+use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Job\JobContract;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,7 +27,7 @@ class TestJobContract extends JobContract
      *
      * @return string
      */
-    public function getJobId()
+    public function getJobId(): string
     {
         return uniqid();
     }
@@ -66,8 +67,40 @@ class TestJobContract extends JobContract
      *
      * @return string
      */
-    public function getRawBody()
+    public function getRawBody(): string
     {
         return '';
+    }
+
+    /**
+     * Resolve the given class
+     *
+     * @param string $class
+     *
+     * @return JobInterface
+     */
+    protected function resolve(string $class): JobInterface
+    {
+        return $this->_container->get($class);
+    }
+
+    /**
+     * Get is job reserved
+     *
+     * @return bool
+     */
+    public function reserved(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Get the number of times the job has been attempted.
+     *
+     * @return int
+     */
+    public function attempts(): int
+    {
+        return 1;
     }
 }
