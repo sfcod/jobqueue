@@ -7,6 +7,7 @@ use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
 
@@ -199,7 +200,12 @@ class MongoQueueTest extends TestCase
 
         $database->selectCollection($collection)->deleteMany([]);
 
-        $mongoQueue->release($job->queue, $job, 0);
+        $jobToRelease = new Job();
+        $jobToRelease->setId($job->_id);
+        $jobToRelease->setQueue($job->queue);
+        $jobToRelease->setAttempts($job->attempts);
+
+        $mongoQueue->release($jobToRelease, 0);
 
         $count = $database->selectCollection($collection)->count();
 
