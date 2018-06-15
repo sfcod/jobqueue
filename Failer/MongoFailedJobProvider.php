@@ -6,6 +6,7 @@ use Exception;
 use MongoDB\Collection;
 use MongoDB\DeleteResult;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Entity\Job;
 
 /**
  * Mongo provider for failed jobs
@@ -69,12 +70,12 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     public function all(): array
     {
         $result = [];
-        $data = $this->getCollection()->find([], [
+        $jobs = $this->getCollection()->find([], [
             'sort' => ['_id' => -1],
         ]);
 
-        foreach ($data as $item) {
-            $result[] = $item;
+        foreach ($jobs as $job) {
+            $result[] = $this->buildJob($job);
         }
 
         return $result;
@@ -85,11 +86,13 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @param string $id
      *
-     * @return array
+     * @return Job
      */
     public function find($id)
     {
-        return $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
+        $data = $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
+
+        return $this->buildJob($data);
     }
 
     /**
@@ -126,5 +129,25 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     protected function getCollection(): Collection
     {
         return $this->mongo->getDatabase()->selectCollection($this->collection);
+    }
+
+    /**
+     * Build job from database data
+     *
+     * @param $data
+     *
+     * @return Job
+     */
+    protected function buildJob($data): Job
+    {
+        $job = new Job();
+        $job->setId($data->_id);
+        $job->setQueue($data->queue);
+        $job->setAttempts(isset($data->attempts) ? $data->attempts : 0);
+        $job->setReserved(isset($data->reserved) ? $data->reserved : false);
+        $job->setReservedAt(isset($data->reserved_at) ? $data->reserved_at : null);
+        $job->setPayload(json_decode($data->payload, true));
+
+        return $job;
     }
 }

@@ -7,6 +7,7 @@ use Helmich\MongoMock\MockDatabase;
 use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
 
 /**
@@ -78,7 +79,8 @@ class MongoFailedJobProviderTest extends TestCase
             'exception' => $exception->getMessage(),
         ]);
 
-        $this->assertEquals($record, $provider->find($record->_id));
+        $this->assertNotNull($record);
+        $this->assertInstanceOf(Job::class, $provider->find($record->_id));
     }
 
     /**

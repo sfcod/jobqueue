@@ -7,8 +7,9 @@ use DateTime;
 use MongoDB\Collection;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
+use SfCod\QueueBundle\Entity\Job;
+use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Job\JobContractInterface;
-use SfCod\QueueBundle\Job\MongoJobContract;
 
 /**
  * Class MongoQueue
@@ -187,15 +188,14 @@ class MongoQueue extends Queue
     /**
      * Release a reserved job back onto the queue.
      *
-     * @param string $queue
-     * @param \StdClass $job
+     * @param Job $job
      * @param DateInterval|int $delay
      *
      * @return mixed
      */
-    public function release(string $queue, $job, $delay)
+    public function release(Job $job, $delay)
     {
-        return $this->pushToDatabase($delay, $queue, $job->payload, $job->attempts);
+        return $this->pushToDatabase($delay, $job->getQueue(), json_encode($job->getPayload()), $job->getAttempts());
     }
 
     /**
@@ -212,9 +212,7 @@ class MongoQueue extends Queue
         if (is_null($job)) {
             return null;
         } else {
-            $job = (object)$job;
-
-            return new MongoJobContract($this->resolver, $this, $job, $job->queue);
+            return new JobContract($this->resolver, $this, $this->buildJob($job));
         }
     }
 
@@ -375,7 +373,7 @@ class MongoQueue extends Queue
                 'sort' => ['_id' => 1],
             ]);
 
-        return $job ? new MongoJobContract($this->resolver, $this, (object)$job, ((object)$job)->queue) : null;
+        return $job ? new JobContract($this->resolver, $this, $this->buildJob($job)) : null;
     }
 
     /**
@@ -434,5 +432,25 @@ class MongoQueue extends Queue
     protected function getCollection(): Collection
     {
         return $this->mongo->getDatabase()->selectCollection($this->collection);
+    }
+
+    /**
+     * Build job from database record
+     *
+     * @param $data
+     *
+     * @return Job
+     */
+    protected function buildJob($data): Job
+    {
+        $job = new Job();
+        $job->setId($data->_id);
+        $job->setAttempts($data->attempts);
+        $job->setQueue($data->queue);
+        $job->setReserved($data->reserved);
+        $job->setReservedAt($data->reserved_at);
+        $job->setPayload(json_decode($data->payload, true));
+
+        return $job;
     }
 }
