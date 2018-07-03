@@ -7,7 +7,9 @@ use SfCod\QueueBundle\Entity\Job;
 
 /**
  * Class JobTest
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Tests\Entity
  */
 class JobTest extends TestCase
