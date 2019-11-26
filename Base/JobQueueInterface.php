@@ -56,7 +56,7 @@ interface JobQueueInterface
      *
      * @return mixed
      */
-    public function later(int $delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default');
+    public function later($delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default');
 
     /**
      * Push a new job into the queue after a delay if job does not exist.
@@ -69,5 +69,5 @@ interface JobQueueInterface
      *
      * @return mixed
      */
-    public function laterUnique(int $delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default');
+    public function laterUnique($delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default');
 }

@@ -3,7 +3,6 @@
 namespace SfCod\QueueBundle\Service;
 
 use SfCod\QueueBundle\Base\JobQueueInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * JobQueue service
@@ -23,8 +22,7 @@ class JobQueue implements JobQueueInterface
     /**
      * JobQueue constructor.
      *
-     * @param ContainerInterface $container
-     * @param array $connections
+     * @param QueueManager $manager
      *
      * @internal param array $config
      */
@@ -97,7 +95,7 @@ class JobQueue implements JobQueueInterface
      *
      * @return mixed
      */
-    public function later(int $delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default')
+    public function later($delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default')
     {
         return $this->manager->later($delay, $job, $data, $queue, $connection);
     }
@@ -113,7 +111,7 @@ class JobQueue implements JobQueueInterface
      *
      * @return mixed
      */
-    public function laterUnique(int $delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default')
+    public function laterUnique($delay, string $job, array $data = [], string $queue = 'default', string $connection = 'default')
     {
         if (false === $this->manager->connection($connection)->exists($job, $data, $queue)) {
             return $this->manager->later($delay, $job, $data, $queue, $connection);
