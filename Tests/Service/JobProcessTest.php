@@ -3,7 +3,7 @@
 namespace SfCod\QueueBundle\Tests\Service;
 
 use PHPUnit\Framework\TestCase;
-use SfCod\QueueBundle\Job\JobContractInterface;
+use SfCod\QueueBundle\JobContract\JobContractInterface;
 use SfCod\QueueBundle\Service\JobProcess;
 
 /**

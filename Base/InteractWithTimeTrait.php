@@ -11,7 +11,7 @@ use DateTimeInterface;
  *
  * @author Virchenko Maksim <muslim1992@gmail.com>
  *
- * @package SfCod\QueueBundle\Job
+ * @package SfCod\QueueBundle\JobContract
  */
 trait InteractWithTimeTrait
 {

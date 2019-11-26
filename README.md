@@ -13,8 +13,18 @@ sfcod_queue:
     namespaces:
         - 'App\Job'        
 ```
-namespaces - is not requered. You can set here all namespace where your job classes are, otherwise they will be fetched as a public services from symfony container.
-connection - is not requered. If it is not set, bundle will use this service SfCod\QueueBundle\Base\MongoDriverInterface::class as default.
+OR instead of namespaces you can use instanceof or direct service autowiring
+```yaml
+services:
+#    _instanceof:
+#        SfCod\QueueBundle\Base\JobInterface:
+#            tags: ['sfcod.jobqueue.job_handler']
+    App\Job\:
+        resource: '../src/Job/*'
+        tags: ['sfcod.jobqueue.job_handler']
+```
+namespaces - is not required. You can set here all namespace where your job classes are, otherwise all services with tag 'sfcod.jobqueue.job_handler' will be fetched from symfony container.
+connection - is not required. If it is not set, bundle will use this service SfCod\QueueBundle\Base\MongoDriverInterface::class as default.
 
 #### Adding jobs to queue:
 

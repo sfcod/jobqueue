@@ -8,8 +8,8 @@ use MongoDB\Collection;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
-use SfCod\QueueBundle\Job\JobContract;
-use SfCod\QueueBundle\Job\JobContractInterface;
+use SfCod\QueueBundle\JobContract\JobContract;
+use SfCod\QueueBundle\JobContract\JobContractInterface;
 
 /**
  * Class MongoQueue

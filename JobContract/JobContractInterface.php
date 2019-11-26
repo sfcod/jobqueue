@@ -1,6 +1,6 @@
 <?php
 
-namespace SfCod\QueueBundle\Job;
+namespace SfCod\QueueBundle\JobContract;
 
 /**
  * Interface JobContract

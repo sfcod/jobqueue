@@ -52,7 +52,6 @@ class QueueExtension extends Extension
         $config = $this->processConfiguration($configuration, $config);
 
         $jobs = $this->grabJobs($config, $container);
-
         foreach ($jobs as $job) {
             $definition = new Definition($job);
             $definition
@@ -81,6 +80,8 @@ class QueueExtension extends Extension
     }
 
     /**
+     * @deprecated will be removed some day, use services with tag "sfcod.jobqueue.job"
+     *
      * @param array $config
      *
      * @return array
@@ -188,10 +189,10 @@ class QueueExtension extends Extension
         $mongo = new Definition(MongoDriverInterface::class);
         $mongo->setClass(MongoDriver::class);
         $mongo->addMethodCall('setCredentials', [
-            getenv('MONGODB_URL'),
+            $container->getParameter('env(MONGODB_URL)'),
         ]);
         $mongo->addMethodCall('setDbname', [
-            getenv('MONGODB_DB'),
+            $container->getParameter('env(MONGODB_DB)'),
         ]);
 
         $container->setDefinition(MongoDriverInterface::class, $mongo);

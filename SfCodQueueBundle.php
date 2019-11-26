@@ -2,7 +2,9 @@
 
 namespace SfCod\QueueBundle;
 
+use SfCod\QueueBundle\DependencyInjection\Compiler\JobCompilerPass;
 use SfCod\QueueBundle\DependencyInjection\QueueExtension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -22,5 +24,17 @@ class SfCodQueueBundle extends Bundle
     public function getContainerExtension()
     {
         return new QueueExtension();
+    }
+
+    /**
+     * Add compiler pass
+     *
+     * @param ContainerBuilder $container
+     */
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new JobCompilerPass());
     }
 }
