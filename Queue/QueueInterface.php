@@ -2,7 +2,7 @@
 
 namespace SfCod\QueueBundle\Queue;
 
-use SfCod\QueueBundle\JobContract\JobContractInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
 
 /**
  * Interface QueueInterface

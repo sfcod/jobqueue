@@ -3,7 +3,7 @@
 namespace SfCod\QueueBundle\Event;
 
 use Exception;
-use SfCod\QueueBundle\JobContract\JobContractInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace SfCod\QueueBundle\JobContract;
+namespace SfCod\QueueBundle\Job;
 
 use Exception;
 use SfCod\QueueBundle\Base\InteractWithTimeTrait;

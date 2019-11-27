@@ -12,7 +12,7 @@ use SfCod\QueueBundle\Exception\FatalThrowableException;
 use SfCod\QueueBundle\Exception\MaxAttemptsExceededException;
 use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
 use SfCod\QueueBundle\Handler\ExceptionHandlerInterface;
-use SfCod\QueueBundle\JobContract\JobContractInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\QueueInterface;
 use SfCod\QueueBundle\Service\JobProcess;
 use SfCod\QueueBundle\Service\QueueManager;

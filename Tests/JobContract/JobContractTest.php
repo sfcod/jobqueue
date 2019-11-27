@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Entity\Job;
-use SfCod\QueueBundle\JobContract\JobContract;
+use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Queue\QueueInterface;
 
 /**

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
-use SfCod\QueueBundle\JobContract\JobContractInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
 
 /**

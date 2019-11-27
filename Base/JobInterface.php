@@ -2,7 +2,7 @@
 
 namespace SfCod\QueueBundle\Base;
 
-use SfCod\QueueBundle\JobContract\JobContractInterface;
+use SfCod\QueueBundle\Job\JobContractInterface;
 
 /**
  * Base interface for handlers

@@ -3,7 +3,7 @@
 namespace SfCod\QueueBundle\Tests\Data;
 
 use SfCod\QueueBundle\Base\JobInterface;
-use SfCod\QueueBundle\JobContract\JobContract;
+use SfCod\QueueBundle\Job\JobContract;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
