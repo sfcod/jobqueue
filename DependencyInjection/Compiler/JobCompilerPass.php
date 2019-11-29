@@ -2,9 +2,11 @@
 
 namespace SfCod\QueueBundle\DependencyInjection\Compiler;
 
+use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Service\JobQueue;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Class JobCompilerPass
@@ -20,15 +22,15 @@ class JobCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->has(JobQueue::class)) {
+        if (!$container->hasDefinition(JobResolverInterface::class)) {
             return;
         }
 
+        $jobResolver = $container->getDefinition(JobResolverInterface::class);
         $taggedServices = $container->findTaggedServiceIds('sfcod.jobqueue.job');
 
         foreach ($taggedServices as $id => $tags) {
-            $definition = $container->findDefinition($id);
-            $definition->setPublic(true);
+            $jobResolver->addMethodCall('addJob', [$id, new Reference($id)]);
         }
     }
 }

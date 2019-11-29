@@ -4,6 +4,7 @@ namespace SfCod\QueueBundle\Service;
 
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
+use SfCod\QueueBundle\Exception\FatalThrowableException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,29 +17,34 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class JobResolver implements JobResolverInterface
 {
     /**
-     * @var ContainerInterface
+     * @var JobInterface[]
      */
-    protected $container;
-
-    /**
-     * JobResolver constructor.
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
+    private $jobs = [];
 
     /**
      * Resolve the given class.
      *
-     * @param string $class
+     * @param string $id
      *
      * @return JobInterface
      */
-    public function resolve(string $class): JobInterface
+    public function resolve(string $id): JobInterface
     {
-        return $this->container->get($class);
+        if (isset($this->jobs[$id])) {
+            return $this->jobs[$id];
+        }
+
+        throw new FatalThrowableException("Job handler '$id' not found.");
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @param string $id
+     * @param JobInterface $job
+     */
+    public function addJob(string $id, JobInterface $job)
+    {
+        $this->jobs[$id] = $job;
     }
 }

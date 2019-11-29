@@ -57,7 +57,8 @@ class QueueExtension extends Extension
             $definition
                 ->setAutowired(true)
                 ->setAutoconfigured(true)
-                ->setPublic(true);
+                ->setPublic(true)
+                ->addTag('sfcod.jobqueue.job');
             $container->setDefinition($job, $definition);
         }
 
@@ -147,9 +148,6 @@ class QueueExtension extends Extension
     {
         $resolver = new Definition(JobResolverInterface::class);
         $resolver->setClass(JobResolver::class);
-        $resolver->setArguments([
-            new Reference(ContainerInterface::class),
-        ]);
 
         $connector = new Definition(ConnectorInterface::class);
         $connector->setClass(MongoConnector::class);

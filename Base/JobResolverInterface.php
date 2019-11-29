@@ -10,11 +10,19 @@ namespace SfCod\QueueBundle\Base;
 interface JobResolverInterface
 {
     /**
-     * Resolve job by class
+     * Resolve job by id
      *
-     * @param string $class
+     * @param string $id
      *
      * @return JobInterface
      */
-    public function resolve(string $class): JobInterface;
+    public function resolve(string $id): JobInterface;
+
+    /**
+     * Add new job
+     *
+     * @param string $id
+     * @param JobInterface $job
+     */
+    public function addJob(string $id, JobInterface $job);
 }
