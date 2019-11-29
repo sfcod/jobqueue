@@ -87,7 +87,7 @@ class JobQueue implements JobQueueInterface
     /**
      * Push a new job onto the queue after a delay.
      *
-     * @param \DateTime|int $delay
+     * @param \DateInterval|int $delay
      * @param string $job
      * @param mixed $data
      * @param string $queue
@@ -103,7 +103,7 @@ class JobQueue implements JobQueueInterface
     /**
      * Push a new job into the queue after a delay if job does not exist.
      *
-     * @param \DateTime|int $delay
+     * @param \DateInterval|int $delay
      * @param string $job
      * @param mixed $data
      * @param string $queue
