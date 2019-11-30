@@ -4,7 +4,7 @@ namespace SfCod\QueueBundle\Service;
 
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Exception\FatalThrowableException;
+use SfCod\QueueBundle\Exception\JobNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -34,7 +34,7 @@ class JobResolver implements JobResolverInterface
             return $this->jobs[$id];
         }
 
-        throw new FatalThrowableException("Job handler '$id' not found.");
+        throw new JobNotFoundException("Job handler '$id' not found.");
     }
 
     /**
