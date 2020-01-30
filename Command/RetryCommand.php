@@ -51,8 +51,8 @@ class RetryCommand extends Command
     protected function configure()
     {
         $this->setName('job-queue:retry')
-            ->setDescription('Release all failed jobs.')
-            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Job id to retry', null);
+            ->setDescription('Release failed job(s).')
+            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Job id to retry, if not set all failed jobs will be affected.', null);
     }
 
     /**
