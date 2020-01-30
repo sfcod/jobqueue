@@ -5,6 +5,7 @@ namespace SfCod\QueueBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * Class QueueConfiguration
@@ -22,8 +23,13 @@ class QueueConfiguration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('sfcod_queue');
-        $rootNode = $treeBuilder->getRootNode();
+        if (Kernel::VERSION_ID >= 40300) {
+            $treeBuilder = new TreeBuilder('sfcod_queue');
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            $treeBuilder = new TreeBuilder();
+            $rootNode = $treeBuilder->root('sfcod_queue');
+        }
 
         $this->addConnections($rootNode);
 
@@ -39,24 +45,24 @@ class QueueConfiguration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->arrayNode('namespaces')
-                    ->scalarPrototype()->end()
-                ->end()
+            ->arrayNode('namespaces')
+            ->scalarPrototype()->end()
+            ->end()
             ->end()
             ->children()
-                ->arrayNode('connections')
-                    ->useAttributeAsKey('name')
-                    ->arrayPrototype()
-                        ->children()
-                            ->scalarNode('driver')->end()
-                            ->scalarNode('collection')->end()
-                            ->scalarNode('connection')->end()
-                            ->scalarNode('queue')->end()
-                            ->scalarNode('expire')->end()
-                            ->scalarNode('limit')->end()
-                        ->end()
-                    ->end()
-                ->end()
+            ->arrayNode('connections')
+            ->useAttributeAsKey('name')
+            ->arrayPrototype()
+            ->children()
+            ->scalarNode('driver')->end()
+            ->scalarNode('collection')->end()
+            ->scalarNode('connection')->end()
+            ->scalarNode('queue')->end()
+            ->scalarNode('expire')->end()
+            ->scalarNode('limit')->end()
+            ->end()
+            ->end()
+            ->end()
             ->end();
     }
 }
