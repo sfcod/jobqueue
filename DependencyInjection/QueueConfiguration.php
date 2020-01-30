@@ -22,8 +22,8 @@ class QueueConfiguration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('sfcod_queue');
+        $treeBuilder = new TreeBuilder('sfcod_queue');
+        $rootNode = $treeBuilder->getRootNode();
 
         $this->addConnections($rootNode);
 
