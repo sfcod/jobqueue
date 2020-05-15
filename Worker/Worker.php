@@ -128,7 +128,7 @@ class Worker
         // for the specified number of seconds, then keep processing jobs after sleep.
         if ($job instanceof JobContractInterface && $connection->canRunJob($job)) {
             $connection->markJobAsReserved($job);
-            $this->runInBackground($job, $connectionName);
+            $this->runInBackground($job, $options);
 
             return true;
         }
@@ -174,11 +174,11 @@ class Worker
      * Make a Process for the Artisan command for the job id.
      *
      * @param JobContractInterface $job
-     * @param string $connectionName
+     * @param Options $options
      */
-    public function runInBackground(JobContractInterface $job, string $connectionName)
+    public function runInBackground(JobContractInterface $job, Options $options)
     {
-        $process = $this->process->getProcess($job, $connectionName);
+        $process = $this->process->getProcess($job, $options);
 
         $process->run();
     }

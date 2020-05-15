@@ -188,14 +188,14 @@ class MongoQueue extends Queue
     /**
      * Release a reserved job back onto the queue.
      *
-     * @param Job $job
+     * @param JobContractInterface $job
      * @param DateInterval|int $delay
      *
      * @return mixed
      */
-    public function release(Job $job, $delay)
+    public function release(JobContractInterface $job, $delay)
     {
-        return $this->pushToDatabase($delay, $job->getQueue(), json_encode($job->getPayload()), $job->getAttempts());
+        return $this->pushToDatabase($delay, $job->getQueue(), json_encode($job->payload()), $job->attempts());
     }
 
     /**

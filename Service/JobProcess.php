@@ -3,6 +3,7 @@
 namespace SfCod\QueueBundle\Service;
 
 use SfCod\QueueBundle\Job\JobContractInterface;
+use SfCod\QueueBundle\Worker\Options;
 use Symfony\Component\Process\Process;
 
 /**
@@ -58,15 +59,28 @@ class JobProcess
      * Get the Artisan process for the job id.
      *
      * @param JobContractInterface $job
-     * @param string $connectionName
+     * @param Options $options
      *
      * @return Process
      */
-    public function getProcess(JobContractInterface $job, string $connectionName): Process
+    public function getProcess(JobContractInterface $job, Options $options): Process
     {
-        $cmd = '%s %s job-queue:run-job %s --connection=%s --queue=%s --env=%s';
+        $cmd = '%s %s job-queue:run-job %s --connection=%s --queue=%s --env=%s --delay=%s --memory=%s --timeout=%s --sleep=%s --maxTries=%s';
         $cmd = $this->getBackgroundCommand($cmd);
-        $cmd = sprintf($cmd, $this->getPhpBinary(), $this->scriptName, (string)$job->getJobId(), $connectionName, $job->getQueue(), getenv('APP_ENV'));
+        $cmd = sprintf(
+            $cmd,
+            $this->getPhpBinary(),
+            $this->scriptName,
+            (string)$job->getJobId(),
+            $job->getConnectionName(),
+            $job->getQueue(),
+            getenv('APP_ENV'),
+            $options->delay,
+            $options->memory,
+            $options->timeout,
+            $options->sleep,
+            $options->maxTries
+        );
 
         return new Process($cmd, $this->binPath);
     }

@@ -157,8 +157,8 @@ class JobContract implements JobContractInterface
     {
         $this->released = true;
 
-        $this->database->deleteReserved($this->getJobId());
-        $this->database->release($this->job, $delay);
+        $this->database->deleteReserved($this->job->getQueue(), $this->getJobId());
+        $this->database->release($this, $delay);
     }
 
     /**
@@ -268,7 +268,7 @@ class JobContract implements JobContractInterface
      */
     public function getConnectionName(): ?string
     {
-        return $this->connectionName;
+        return $this->connectionName ?? $this->database->getConnectionName();
     }
 
     /**
