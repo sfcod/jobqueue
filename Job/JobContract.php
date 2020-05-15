@@ -156,6 +156,9 @@ class JobContract implements JobContractInterface
     public function release(int $delay = 0)
     {
         $this->released = true;
+
+        $this->database->deleteReserved($this->getJobId());
+        $this->database->release($this->job, $delay);
     }
 
     /**

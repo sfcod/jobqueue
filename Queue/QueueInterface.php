@@ -2,6 +2,7 @@
 
 namespace SfCod\QueueBundle\Queue;
 
+use DateInterval;
 use SfCod\QueueBundle\Job\JobContractInterface;
 
 /**
@@ -160,4 +161,14 @@ interface QueueInterface
      * @return bool
      */
     public function deleteReserved(string $queue, $id): bool;
+
+    /**
+     * Release a reserved job back onto the queue.
+     *
+     * @param JobContractInterface $job
+     * @param DateInterval|int $delay
+     *
+     * @return mixed
+     */
+    public function release(JobContractInterface $job, $delay);
 }
