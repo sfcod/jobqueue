@@ -45,7 +45,7 @@ class RunJobCommand extends Command
             ->addArgument('id', InputArgument::REQUIRED, 'The id of the job.')
             ->addOption('connection', null, InputArgument::OPTIONAL, 'The name of the connection.', 'default')
             ->addOption('queue', null, InputArgument::OPTIONAL, 'The name of the queue.', 'default')
-            ->addOption('delay', null, InputArgument::OPTIONAL, 'Delay before getting jobs.', 0)
+            ->addOption('delay', null, InputArgument::OPTIONAL, 'Delay before retry failed job.', 0)
             ->addOption('memory', null, InputArgument::OPTIONAL, 'Maximum memory usage limit.', 128)
             ->addOption('sleep', null, InputArgument::OPTIONAL, 'Sleep time before getting new job.', 3)
             ->addOption('maxTries', null, InputArgument::OPTIONAL, 'Max tries to run job.', 1)

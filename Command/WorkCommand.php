@@ -43,7 +43,7 @@ class WorkCommand extends Command
     protected function configure()
     {
         $this->setName('job-queue:work')
-            ->addOption('delay', null, InputArgument::OPTIONAL, 'Delay before getting jobs.', 3)
+            ->addOption('delay', null, InputArgument::OPTIONAL, 'Delay before retry failed job.', 3)
             ->addOption('memory', null, InputArgument::OPTIONAL, 'Maximum memory usage limit.', 128)
             ->addOption('sleep', null, InputArgument::OPTIONAL, 'Sleep time before getting new job.', 3)
             ->addOption('maxTries', null, InputArgument::OPTIONAL, 'Max tries to run job.', 1)
