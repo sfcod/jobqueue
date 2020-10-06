@@ -217,7 +217,7 @@ class JobQueueTest extends TestCase
         /** @var JobQueue $jobQueue */
         $jobQueue = $this->getMockBuilder(JobQueue::class)
             ->setConstructorArgs([$manager])
-            ->setMethods(null)
+            ->addMethods([])
             ->getMock();
 
         return $jobQueue;
@@ -230,13 +230,14 @@ class JobQueueTest extends TestCase
      */
     private function mockManager(): QueueManager
     {
+        /** @var QueueManager $manager */
         $manager = $this->getMockBuilder(QueueManager::class)
-            ->setMethods([
+            ->addMethods([
                 'push',
                 'bulk',
                 'later',
-                'connection',
             ])
+            ->onlyMethods(['connection'])
             ->getMock();
 
         return $manager;

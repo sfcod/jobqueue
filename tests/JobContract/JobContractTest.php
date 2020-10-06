@@ -153,7 +153,6 @@ class JobContractTest extends TestCase
 
         $resolver = $this->createMock(JobResolverInterface::class);
         $resolver
-            ->expects($this->any())
             ->method('resolve')
             ->with(self::equalTo($jobData->getPayload()['job']))
             ->willReturn($jobInstance);
@@ -161,7 +160,7 @@ class JobContractTest extends TestCase
         /** @var JobContract $contract */
         $contract = $this->getMockBuilder(JobContract::class)
             ->setConstructorArgs([$resolver, $queue, $jobData, $queueName])
-            ->setMethods(null)
+            ->addMethods([])
             ->getMock();
 
         return $contract;

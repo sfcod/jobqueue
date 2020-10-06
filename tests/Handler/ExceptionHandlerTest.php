@@ -60,7 +60,7 @@ class ExceptionHandlerTest extends TestCase
         /** @var ExceptionHandler $handler */
         $handler = $this->getMockBuilder(ExceptionHandler::class)
             ->setConstructorArgs([$logger])
-            ->setMethods(null)
+            ->addMethods([])
             ->getMock();
 
         return $handler;

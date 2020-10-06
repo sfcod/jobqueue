@@ -19,7 +19,7 @@ class JobProcessTest extends TestCase
     /**
      * Test get process
      */
-    public function testGetProcess()
+    public function testGetProcess(): void
     {
         $scriptName = uniqid('script_', true);
         $binPath = __DIR__;

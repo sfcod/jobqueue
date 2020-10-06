@@ -57,7 +57,7 @@ class QueueManagerTest extends TestCase
             ->expects(self::once())
             ->method('setConnectionName')
             ->with(self::equalTo($connectionName))
-            ->will(self::returnSelf());
+            ->willReturnSelf();
 
         $connector = $this->createMock(ConnectorInterface::class);
         $connector

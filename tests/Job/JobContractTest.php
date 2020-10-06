@@ -160,7 +160,7 @@ class JobContractTest extends TestCase
         /** @var JobContract $contract */
         $contract = $this->getMockBuilder(JobContract::class)
             ->setConstructorArgs([$resolver, $queue, $jobData, $queueName])
-            ->setMethods(null)
+            ->addMethods([])
             ->getMock();
 
         return $contract;
