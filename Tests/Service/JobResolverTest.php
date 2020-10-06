@@ -5,7 +5,6 @@ namespace SfCod\QueueBundle\Tests\Service;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Service\JobResolver;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class JobResolverTest
