@@ -26,7 +26,8 @@
         "symfony/phpunit-bridge": "^4.0",
         "friendsofphp/php-cs-fixer": "^2.8",
         "helmich/mongomock": "^2.1",
-        "phpunit/phpunit": "^7.5"
+        "phpunit/phpunit": "^7.5",
+        "scrutinizer/ocular": "^1.7"
     },
     "autoload": {
         "psr-4": {

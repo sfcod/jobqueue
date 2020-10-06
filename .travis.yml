@@ -23,3 +23,7 @@ install:
 script:
   - vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --diff
   - phpunit --verbose $PHPUNIT_FLAGS --bootstrap ./vendor/autoload.php
+  - phpunit --coverage-text --coverage-clover=coverage.clover
+
+after_script:
+  - php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
