@@ -24,14 +24,8 @@ class JobResolverTest extends TestCase
         $jobName = uniqid('job_');
         $jobClass = $this->createMock(JobInterface::class);
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container
-            ->expects($this->once())
-            ->method('get')
-            ->with($this->equalTo($jobName))
-            ->will($this->returnValue($jobClass));
-
-        $resolver = $this->mockResolver($container);
+        $resolver = new JobResolver();
+        $resolver->addJob($jobName, $jobClass);
 
         $this->assertEquals($jobClass, $resolver->resolve($jobName));
     }
@@ -46,7 +40,7 @@ class JobResolverTest extends TestCase
     private function mockResolver(ContainerInterface $container): JobResolver
     {
         $resolver = $this->getMockBuilder(JobResolver::class)
-            ->setConstructorArgs([$container])
+//            ->setConstructorArgs([$container])
             ->setMethods(null)
             ->getMock();
 
