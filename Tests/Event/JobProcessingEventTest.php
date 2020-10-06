@@ -19,15 +19,15 @@ class JobProcessingEventTest extends TestCase
     /**
      * Test event
      */
-    public function testEvent()
+    public function testEvent(): void
     {
-        $connectionName = uniqid('connection_');
+        $connectionName = uniqid('connection_', true);
         $job = $this->createMock(JobContractInterface::class);
 
         $event = new JobProcessingEvent($connectionName, $job);
 
-        $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals($connectionName, $event->getConnectionName());
-        $this->assertEquals($job, $event->getJob());
+        self::assertInstanceOf(Event::class, $event);
+        self::assertEquals($connectionName, $event->getConnectionName());
+        self::assertEquals($job, $event->getJob());
     }
 }

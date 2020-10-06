@@ -3,6 +3,8 @@
 namespace SfCod\QueueBundle\Handler;
 
 use Exception;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Interface ExceptionHandlerInterface
@@ -18,7 +20,7 @@ interface ExceptionHandlerInterface
      *
      * @return void
      */
-    public function report(Exception $e);
+    public function report(Exception $e): void;
 
     /**
      * Render an exception into an HTTP response.
@@ -26,17 +28,17 @@ interface ExceptionHandlerInterface
      * @param $request
      * @param Exception $e
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function render($request, Exception $e);
+    public function render($request, Exception $e): Response;
 
     /**
      * Render an exception to the console.
      *
-     * @param  \Symfony\Component\Console\Output\OutputInterface $output
+     * @param  OutputInterface $output
      * @param  Exception $e
      *
      * @return void
      */
-    public function renderForConsole($output, Exception $e);
+    public function renderForConsole(OutputInterface $output, Exception $e): void;
 }

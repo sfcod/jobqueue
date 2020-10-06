@@ -16,9 +16,9 @@ class FatalThrowableException extends Exception
      *
      * @param Exception $e
      * @param int $code
-     * @param Exception $previous
+     * @param Exception|null $previous
      */
-    public function __construct($e, int $code = 0, Exception $previous = null)
+    public function __construct(Exception $e, int $code = 0, Exception $previous = null)
     {
         $this->message = $e->getMessage();
         $this->file = $e->getFile();

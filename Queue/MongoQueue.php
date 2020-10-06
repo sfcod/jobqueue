@@ -4,7 +4,9 @@ namespace SfCod\QueueBundle\Queue;
 
 use DateInterval;
 use DateTime;
+use MongoDB\BSON\ObjectID;
 use MongoDB\Collection;
+use MongoDB\DeleteResult;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
@@ -63,6 +65,7 @@ class MongoQueue extends Queue
     /**
      * Create a new mongo queue instance.
      *
+     * @param JobResolverInterface $resolver
      * @param MongoDriverInterface $mongo
      * @param string $collection
      * @param string $queue
@@ -90,7 +93,7 @@ class MongoQueue extends Queue
      *
      * @param string $job
      * @param mixed $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -102,7 +105,7 @@ class MongoQueue extends Queue
     /**
      * Pop the next job off of the queue.
      *
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return null|JobContractInterface
      */
@@ -154,7 +157,7 @@ class MongoQueue extends Queue
      * @param DateInterval|int $delay
      * @param string $job
      * @param array $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -168,7 +171,7 @@ class MongoQueue extends Queue
      *
      * @param array $jobs
      * @param mixed $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -207,13 +210,13 @@ class MongoQueue extends Queue
      */
     public function getJobById($id): ?JobContractInterface
     {
-        $job = $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
+        $job = $this->getCollection()->findOne(['_id' => new ObjectID($id)]);
 
         if (is_null($job)) {
             return null;
-        } else {
-            return new JobContract($this->resolver, $this, $this->buildJob($job));
         }
+
+        return new JobContract($this->resolver, $this, $this->buildJob($job));
     }
 
     /**
@@ -227,7 +230,7 @@ class MongoQueue extends Queue
     public function deleteReserved(string $queue, $id): bool
     {
         $query = [
-            '_id' => new \MongoDB\BSON\ObjectID($id),
+            '_id' => new ObjectID($id),
             'queue' => $queue,
         ];
 
@@ -263,7 +266,7 @@ class MongoQueue extends Queue
     /**
      * Get the size of the queue.
      *
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return int
      */
@@ -301,7 +304,7 @@ class MongoQueue extends Queue
         $attempts = $job->attempts() + 1;
         $reserved_at = $this->currentTime();
 
-        $this->getCollection()->updateOne(['_id' => new \MongoDB\BSON\ObjectID($job->getJobId())], [
+        $this->getCollection()->updateOne(['_id' => new ObjectID($job->getJobId())], [
             '$set' => [
                 'attempts' => $attempts,
                 'reserved' => 1,

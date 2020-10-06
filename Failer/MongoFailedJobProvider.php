@@ -3,6 +3,7 @@
 namespace SfCod\QueueBundle\Failer;
 
 use Exception;
+use MongoDB\BSON\ObjectID;
 use MongoDB\Collection;
 use MongoDB\DeleteResult;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
@@ -51,7 +52,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return int|null|void
      */
-    public function log(string $connection, string $queue, string $payload, Exception $exception)
+    public function log(string $connection, string $queue, string $payload, Exception $exception): void
     {
         $this->getCollection()->insertOne([
             'connection' => $connection,
@@ -88,9 +89,9 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return Job
      */
-    public function find($id)
+    public function find(string $id): Job
     {
-        $data = $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
+        $data = $this->getCollection()->findOne(['_id' => new ObjectID($id)]);
 
         return $this->buildJob($data);
     }
@@ -102,9 +103,9 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return bool
      */
-    public function forget($id)
+    public function forget(string $id): bool
     {
-        $result = $this->getCollection()->deleteOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
+        $result = $this->getCollection()->deleteOne(['_id' => new ObjectID($id)]);
 
         if ($result instanceof DeleteResult) {
             return (bool)$result->getDeletedCount();
@@ -116,7 +117,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * Flush all of the failed jobs from storage.
      */
-    public function flush()
+    public function flush(): void
     {
         $this->getCollection()->drop();
     }
@@ -143,9 +144,9 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
         $job = new Job();
         $job->setId($data->_id);
         $job->setQueue($data->queue);
-        $job->setAttempts(isset($data->attempts) ? $data->attempts : 0);
-        $job->setReserved(isset($data->reserved) ? $data->reserved : false);
-        $job->setReservedAt(isset($data->reserved_at) ? $data->reserved_at : null);
+        $job->setAttempts($data->attempts ?? 0);
+        $job->setReserved($data->reserved ?? false);
+        $job->setReservedAt($data->reserved_at ?? null);
         $job->setPayload(json_decode($data->payload, true));
 
         return $job;

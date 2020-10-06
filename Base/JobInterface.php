@@ -18,4 +18,6 @@ interface JobInterface
      * @param array $data
      */
     public function fire(JobContractInterface $job, array $data);
+
+    public function failed(array $data, \Exception $e): void;
 }

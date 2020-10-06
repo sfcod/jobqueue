@@ -20,7 +20,7 @@ class MongoConnectorTest extends TestCase
     /**
      * Test connect
      */
-    public function testConnect()
+    public function testConnect(): void
     {
         $jobResolver = $this->createMock(JobResolverInterface::class);
         $mongoDriver = $this->createMock(MongoDriverInterface::class);
@@ -28,14 +28,14 @@ class MongoConnectorTest extends TestCase
         $connector = new MongoConnector($jobResolver, $mongoDriver);
 
         $config = [
-            'collection' => uniqid('collection_'),
-            'queue' => uniqid('queue_'),
-            'expire' => rand(1, 1000),
-            'limit' => rand(1, 10),
+            'collection' => uniqid('collection_', true),
+            'queue' => uniqid('queue_', true),
+            'expire' => random_int(1, 1000),
+            'limit' => random_int(1, 10),
         ];
 
         $queue = $connector->connect($config);
 
-        $this->assertInstanceOf(MongoQueue::class, $queue);
+        self::assertInstanceOf(MongoQueue::class, $queue);
     }
 }

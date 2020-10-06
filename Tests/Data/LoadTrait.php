@@ -28,9 +28,9 @@ trait LoadTrait
      *
      * @throws \ReflectionException
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $dotenv = new Dotenv();
+        $dotenv = new Dotenv(true);
         try {
             $dotenv->load(__DIR__ . '/../../.env');
         } catch (PathException $e) {

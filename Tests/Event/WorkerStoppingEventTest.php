@@ -18,10 +18,10 @@ class WorkerStoppingEventTest extends TestCase
     /**
      * Test event
      */
-    public function testEvent()
+    public function testEvent(): void
     {
         $event = new WorkerStoppingEvent();
 
-        $this->assertInstanceOf(Event::class, $event);
+        self::assertInstanceOf(Event::class, $event);
     }
 }

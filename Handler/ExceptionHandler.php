@@ -4,6 +4,8 @@ namespace SfCod\QueueBundle\Handler;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * ExceptionHandler
@@ -32,7 +34,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
      *
      * @param \Exception $e
      */
-    public function report(Exception $e)
+    public function report(Exception $e): void
     {
         $this->logger->error($e->getMessage(), ['exception' => $e]);
     }
@@ -40,24 +42,22 @@ class ExceptionHandler implements ExceptionHandlerInterface
     /**
      * Render an exception into an HTTP response.
      *
-     * @param \HttpRequest $request
+     * @param HttpRequest $request
      * @param \Exception $e
      *
-     * @return \Symfony\Component\HttpFoundation\Response|void
+     * @return Response
      */
-    public function render($request, Exception $e)
+    public function render($request, Exception $e): Response
     {
-        return;
     }
 
     /**
      * Render an exception to the console.
      *
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @param \Exception $e
+     * @param OutputInterface $output
+     * @param Exception $e
      */
-    public function renderForConsole($output, Exception $e)
+    public function renderForConsole(OutputInterface $output, Exception $e): void
     {
-        return;
     }
 }

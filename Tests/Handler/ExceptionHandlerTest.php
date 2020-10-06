@@ -19,15 +19,17 @@ class ExceptionHandlerTest extends TestCase
     /**
      * Test handler report
      */
-    public function testReport()
+    public function testReport(): void
     {
-        $message = uniqid('message_');
+        $message = uniqid('message_', true);
 
         $exception = new Exception($message);
         $logger = $this->mockLogger($exception);
         $handler = $this->mockHandler($logger);
 
         $handler->report($exception);
+
+        self::assertTrue(true);
     }
 
     /**
@@ -41,9 +43,8 @@ class ExceptionHandlerTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects($this->once())
             ->method('error')
-            ->with($this->equalTo($exception->getMessage()), $this->equalTo(['exception' => $exception]));
+            ->with(self::equalTo($exception->getMessage()), self::equalTo(['exception' => $exception]));
 
         return $logger;
     }
@@ -51,10 +52,12 @@ class ExceptionHandlerTest extends TestCase
     /**
      * Mock exception handler
      *
+     * @param LoggerInterface $logger
      * @return ExceptionHandler
      */
     private function mockHandler(LoggerInterface $logger): ExceptionHandler
     {
+        /** @var ExceptionHandler $handler */
         $handler = $this->getMockBuilder(ExceptionHandler::class)
             ->setConstructorArgs([$logger])
             ->setMethods(null)

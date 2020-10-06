@@ -71,7 +71,7 @@ class JobProcess
             $cmd,
             $this->getPhpBinary(),
             $this->scriptName,
-            (string)$job->getJobId(),
+            $job->getJobId(),
             $job->getConnectionName(),
             $job->getQueue(),
             getenv('APP_ENV'),
@@ -82,7 +82,7 @@ class JobProcess
             $options->maxTries
         );
 
-        return new Process($cmd, $this->binPath);
+        return new Process(explode(' ', $cmd), $this->binPath);
     }
 
     /**
@@ -94,9 +94,9 @@ class JobProcess
     {
         if (defined('PHP_WINDOWS_VERSION_BUILD')) {
             return 'start /B ' . $cmd . ' > NUL';
-        } else {
-            return $cmd . ' > /dev/null 2>&1 &';
         }
+
+        return $cmd . ' > /dev/null 2>&1 &';
     }
 
     /**
@@ -116,6 +116,6 @@ class JobProcess
             $args = implode(' ', $args);
         }
 
-        return trim($path . ' ' . $args);
+        return trim(trim($path . ' ' . $args), '\'');
     }
 }

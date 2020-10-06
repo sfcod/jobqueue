@@ -19,19 +19,19 @@ class QueueManagerTest extends TestCase
     /**
      * Test manager connection
      */
-    public function testConnection()
+    public function testConnection(): void
     {
-        $driver = uniqid('driver_');
-        $connectionName = uniqid('connection_');
+        $driver = uniqid('driver_', true);
+        $connectionName = uniqid('connection_', true);
 
         $queueManager = $this->mockQueueManager($driver, $connectionName);
 
-        $this->assertFalse($queueManager->connected($connectionName));
+        self::assertFalse($queueManager->connected($connectionName));
 
         $queue = $queueManager->connection($connectionName);
 
-        $this->assertInstanceOf(QueueInterface::class, $queue);
-        $this->assertTrue($queueManager->connected($connectionName));
+        self::assertInstanceOf(QueueInterface::class, $queue);
+        self::assertTrue($queueManager->connected($connectionName));
     }
 
     /**
@@ -46,25 +46,25 @@ class QueueManagerTest extends TestCase
     {
         $config = [
             'driver' => $driver,
-            'collection' => uniqid('collection_'),
-            'queue' => uniqid('queue_'),
-            'expire' => rand(60, 3600),
-            'limit' => rand(1, 10),
+            'collection' => uniqid('collection_', true),
+            'queue' => uniqid('queue_', true),
+            'expire' => random_int(60, 3600),
+            'limit' => random_int(1, 10),
         ];
 
         $queue = $this->createMock(QueueInterface::class);
         $queue
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('setConnectionName')
-            ->with($this->equalTo($connectionName))
-            ->will($this->returnSelf());
+            ->with(self::equalTo($connectionName))
+            ->will(self::returnSelf());
 
         $connector = $this->createMock(ConnectorInterface::class);
         $connector
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('connect')
-            ->with($this->equalTo($config))
-            ->will($this->returnValue($queue));
+            ->with(self::equalTo($config))
+            ->willReturn($queue);
 
         $queueManager = new QueueManager();
 

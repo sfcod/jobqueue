@@ -43,7 +43,6 @@ class JobFailedEvent extends Event
      * @param string $connectionName
      * @param JobContractInterface $job
      * @param Exception $exception
-     * @param array $config
      */
     public function __construct(string $connectionName, JobContractInterface $job, Exception $exception)
     {

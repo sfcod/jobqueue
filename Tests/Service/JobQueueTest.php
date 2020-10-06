@@ -23,7 +23,7 @@ class JobQueueTest extends TestCase
     /**
      * Set up test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->configure();
     }
@@ -31,178 +31,178 @@ class JobQueueTest extends TestCase
     /**
      * Test pushing into queue
      */
-    public function testPush()
+    public function testPush(): void
     {
-        $job = uniqid('job_');
+        $job = uniqid('job_', true);
         $data = array_rand(range(0, 100), 10);
-        $queue = uniqid('queue_');
-        $connection = uniqid('connection_');
+        $queue = uniqid('queue_', true);
+        $connection = uniqid('connection_', true);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('push')
             ->with($job, $data, $queue, $connection)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertTrue($jobQueue->push($job, $data, $queue, $connection));
+        self::assertTrue($jobQueue->push($job, $data, $queue, $connection));
     }
 
     /**
      * Test push unique job into queue
      */
-    public function testPushUnique()
+    public function testPushUnique(): void
     {
-        $job = uniqid('job_');
+        $job = uniqid('job_', true);
         $data = array_rand(range(0, 100), 10);
-        $queue = uniqid('queue_');
-        $connection = uniqid('connection_');
+        $queue = uniqid('queue_', true);
+        $connection = uniqid('connection_', true);
 
         $connectionMock = $this->createMock(QueueInterface::class);
         $connectionMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('exists')
-            ->with($this->equalTo($job), $this->equalTo($data), $this->equalTo($queue))
-            ->will($this->returnValue(false));
+            ->with(self::equalTo($job), self::equalTo($data), self::equalTo($queue))
+            ->willReturn(false);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('connection')
-            ->with($this->equalTo($connection))
-            ->will($this->returnValue($connectionMock));
+            ->with(self::equalTo($connection))
+            ->willReturn($connectionMock);
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('push')
             ->with($job, $data, $queue, $connection)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertTrue($jobQueue->pushUnique($job, $data, $queue, $connection));
+        self::assertTrue($jobQueue->pushUnique($job, $data, $queue, $connection));
 
         $connectionMock = $this->createMock(QueueInterface::class);
         $connectionMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('exists')
-            ->with($this->equalTo($job), $this->equalTo($data), $this->equalTo($queue))
-            ->will($this->returnValue(true));
+            ->with(self::equalTo($job), self::equalTo($data), self::equalTo($queue))
+            ->willReturn(true);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('connection')
-            ->with($this->equalTo($connection))
-            ->will($this->returnValue($connectionMock));
+            ->with(self::equalTo($connection))
+            ->willReturn($connectionMock);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertNull($jobQueue->pushUnique($job, $data, $queue, $connection));
+        self::assertNull($jobQueue->pushUnique($job, $data, $queue, $connection));
     }
 
     /**
      * Test bulk pushing into queue
      */
-    public function testBulk()
+    public function testBulk(): void
     {
         $jobs = [];
 
         for ($i = 0; $i < 10; ++$i) {
-            $jobs[] = uniqid('job_' . $i);
+            $jobs[] = uniqid('job_' . $i, true);
         }
 
         $data = array_rand(range(0, 100), 10);
-        $queue = uniqid('queue_');
-        $connection = uniqid('connection_');
+        $queue = uniqid('queue_', true);
+        $connection = uniqid('connection_', true);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with($jobs, $data, $queue, $connection)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertTrue($jobQueue->bulk($jobs, $data, $queue, $connection));
+        self::assertTrue($jobQueue->bulk($jobs, $data, $queue, $connection));
     }
 
     /**
      * Test pushing job with delay
      */
-    public function testLater()
+    public function testLater(): void
     {
-        $delay = rand(1, 1000);
-        $job = uniqid('job_');
+        $delay = random_int(1, 1000);
+        $job = uniqid('job_', true);
         $data = array_rand(range(0, 100), 10);
-        $queue = uniqid('queue_');
-        $connection = uniqid('connection_');
+        $queue = uniqid('queue_', true);
+        $connection = uniqid('connection_', true);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('later')
             ->with($delay, $job, $data, $queue, $connection)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertTrue($jobQueue->later($delay, $job, $data, $queue, $connection));
+        self::assertTrue($jobQueue->later($delay, $job, $data, $queue, $connection));
     }
 
     /**
      * Test push unique job with delay into queue
      */
-    public function testLaterUnique()
+    public function testLaterUnique(): void
     {
-        $delay = rand(1, 1000);
-        $job = uniqid('job_');
+        $delay = random_int(1, 1000);
+        $job = uniqid('job_', true);
         $data = array_rand(range(0, 100), 10);
-        $queue = uniqid('queue_');
-        $connection = uniqid('connection_');
+        $queue = uniqid('queue_', true);
+        $connection = uniqid('connection_', true);
 
         $connectionMock = $this->createMock(QueueInterface::class);
         $connectionMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('exists')
-            ->with($this->equalTo($job), $this->equalTo($data), $this->equalTo($queue))
-            ->will($this->returnValue(false));
+            ->with(self::equalTo($job), self::equalTo($data), self::equalTo($queue))
+            ->willReturn(false);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('connection')
-            ->with($this->equalTo($connection))
-            ->will($this->returnValue($connectionMock));
+            ->with(self::equalTo($connection))
+            ->willReturn($connectionMock);
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('later')
             ->with($delay, $job, $data, $queue, $connection)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertTrue($jobQueue->laterUnique($delay, $job, $data, $queue, $connection));
+        self::assertTrue($jobQueue->laterUnique($delay, $job, $data, $queue, $connection));
 
         $connectionMock = $this->createMock(QueueInterface::class);
         $connectionMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('exists')
-            ->with($this->equalTo($job), $this->equalTo($data), $this->equalTo($queue))
-            ->will($this->returnValue(true));
+            ->with(self::equalTo($job), self::equalTo($data), self::equalTo($queue))
+            ->willReturn(true);
 
         $manager = $this->mockManager();
         $manager
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('connection')
-            ->with($this->equalTo($connection))
-            ->will($this->returnValue($connectionMock));
+            ->with(self::equalTo($connection))
+            ->willReturn($connectionMock);
 
         $jobQueue = $this->mockJobQueue($manager);
 
-        $this->assertNull($jobQueue->laterUnique($delay, $job, $data, $queue, $connection));
+        self::assertNull($jobQueue->laterUnique($delay, $job, $data, $queue, $connection));
     }
 
     /**
@@ -214,6 +214,7 @@ class JobQueueTest extends TestCase
      */
     private function mockJobQueue(QueueManager $manager): JobQueue
     {
+        /** @var JobQueue $jobQueue */
         $jobQueue = $this->getMockBuilder(JobQueue::class)
             ->setConstructorArgs([$manager])
             ->setMethods(null)

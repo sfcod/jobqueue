@@ -40,7 +40,7 @@ class WorkCommand extends Command
     /**
      * Configure command
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('job-queue:work')
             ->addOption('delay', null, InputArgument::OPTIONAL, 'Delay before retry failed job.', 3)
@@ -59,9 +59,9 @@ class WorkCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return int|null|void
+     * @return int
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -78,5 +78,7 @@ class WorkCommand extends Command
         $io->success(sprintf('Worker daemon has started.'));
 
         $this->worker->daemon($connection, $queue, $workerOptions);
+
+        return 0;
     }
 }

@@ -65,7 +65,7 @@ class Job
     /**
      * @param int|string $id
      */
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
@@ -81,7 +81,7 @@ class Job
     /**
      * @param int $attempts
      */
-    public function setAttempts(int $attempts)
+    public function setAttempts(int $attempts): void
     {
         $this->attempts = $attempts;
     }
@@ -97,7 +97,7 @@ class Job
     /**
      * @param string $queue
      */
-    public function setQueue(string $queue)
+    public function setQueue(string $queue): void
     {
         $this->queue = $queue;
     }
@@ -113,7 +113,7 @@ class Job
     /**
      * @param bool $reserved
      */
-    public function setReserved(bool $reserved)
+    public function setReserved(bool $reserved): void
     {
         $this->reserved = $reserved;
     }
@@ -129,7 +129,7 @@ class Job
     /**
      * @param int|null $reservedAt
      */
-    public function setReservedAt(?int $reservedAt)
+    public function setReservedAt(?int $reservedAt): void
     {
         $this->reservedAt = $reservedAt;
     }
@@ -145,7 +145,7 @@ class Job
     /**
      * @param array $payload
      */
-    public function setPayload(array $payload)
+    public function setPayload(array $payload): void
     {
         $this->payload = $payload;
     }

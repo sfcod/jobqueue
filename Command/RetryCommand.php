@@ -2,7 +2,6 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
 use SfCod\QueueBundle\Service\JobQueue;
@@ -35,7 +34,7 @@ class RetryCommand extends Command
      * RetryCommand constructor.
      *
      * @param JobQueue $queue
-     * @param MongoDriverInterface $mongoDriver
+     * @param FailedJobProviderInterface $failer
      */
     public function __construct(JobQueue $queue, FailedJobProviderInterface $failer)
     {
@@ -48,7 +47,7 @@ class RetryCommand extends Command
     /**
      * Configure command
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('job-queue:retry')
             ->setDescription('Release failed job(s).')
@@ -61,9 +60,9 @@ class RetryCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return int|null|void
+     * @return int
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -82,6 +81,8 @@ class RetryCommand extends Command
         }
 
         $io->success(sprintf("[%d] job(s) has been released.\n", $jobsCount));
+
+        return 0;
     }
 
     /**

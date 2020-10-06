@@ -17,22 +17,22 @@ class OptionsTest extends TestCase
     /**
      * Test worker options
      */
-    public function testOptions()
+    public function testOptions(): void
     {
-        $delay = rand(1, 100);
-        $memory = rand(128, 2048);
-        $timeout = rand(60, 3600);
-        $sleep = rand(0, 60);
-        $maxTries = rand(1, 10);
-        $force = (bool)rand(0, 1);
+        $delay = random_int(1, 100);
+        $memory = random_int(128, 2048);
+        $timeout = random_int(60, 3600);
+        $sleep = random_int(0, 60);
+        $maxTries = random_int(1, 10);
+        $force = (bool)random_int(0, 1);
 
         $options = new Options($delay, $memory, $timeout, $sleep, $maxTries, $force);
 
-        $this->assertEquals($delay, $options->delay);
-        $this->assertEquals($memory, $options->memory);
-        $this->assertEquals($timeout, $options->timeout);
-        $this->assertEquals($sleep, $options->sleep);
-        $this->assertEquals($maxTries, $options->maxTries);
-        $this->assertEquals($force, $options->force);
+        self::assertEquals($delay, $options->delay);
+        self::assertEquals($memory, $options->memory);
+        self::assertEquals($timeout, $options->timeout);
+        self::assertEquals($sleep, $options->sleep);
+        self::assertEquals($maxTries, $options->maxTries);
+        self::assertEquals($force, $options->force);
     }
 }

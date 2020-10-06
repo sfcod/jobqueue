@@ -2,7 +2,6 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use Psr\Log\LoggerInterface;
 use SfCod\QueueBundle\Worker\Options;
 use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\Console\Command\Command;
@@ -25,7 +24,6 @@ class RunJobCommand extends Command
     /**
      * RunJobCommand constructor.
      *
-     * @param LoggerInterface $logger
      * @param Worker $worker
      */
     public function __construct(Worker $worker)
@@ -38,7 +36,7 @@ class RunJobCommand extends Command
     /**
      * Configure command
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('job-queue:run-job')
             ->setDescription('Runs single job by id.')
@@ -58,9 +56,9 @@ class RunJobCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return int|null|void
+     * @return int
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $options = new Options(
             $input->getOption('delay'),
@@ -73,5 +71,7 @@ class RunJobCommand extends Command
         $jobId = $input->getArgument('id');
 
         $this->worker->runJobById($connection, $jobId, $options);
+
+        return 0;
     }
 }

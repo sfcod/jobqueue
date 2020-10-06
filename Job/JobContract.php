@@ -89,7 +89,7 @@ class JobContract implements JobContractInterface
      *
      * @param JobResolverInterface $resolver
      * @param QueueInterface $database
-     * @param StdClass|MongoDB\Model\BSONDocument $job
+     * @param \stdClass|MongoDB\Model\BSONDocument $job
      */
     public function __construct(JobResolverInterface $resolver, QueueInterface $database, Job $job)
     {
@@ -103,7 +103,7 @@ class JobContract implements JobContractInterface
      *
      * @return void
      */
-    public function fire()
+    public function fire(): void
     {
         $handler = $this->resolve($this->getName());
 
@@ -113,7 +113,7 @@ class JobContract implements JobContractInterface
     /**
      * Delete the job from the queue.
      */
-    public function delete()
+    public function delete(): void
     {
         $this->deleted = true;
 
@@ -127,7 +127,7 @@ class JobContract implements JobContractInterface
      *
      * @return void
      */
-    public function failed($e)
+    public function failed(Exception $e): void
     {
         $this->markAsFailed();
 
@@ -153,7 +153,7 @@ class JobContract implements JobContractInterface
      *
      * @return void
      */
-    public function release(int $delay = 0)
+    public function release(int $delay = 0): void
     {
         $this->released = true;
 
@@ -196,7 +196,7 @@ class JobContract implements JobContractInterface
      *
      * @return void
      */
-    public function markAsFailed()
+    public function markAsFailed(): void
     {
         $this->failed = true;
     }

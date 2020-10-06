@@ -19,9 +19,9 @@ class QueueConfiguration implements ConfigurationInterface
     /**
      * Generates the configuration tree builder.
      *
-     * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder The tree builder
+     * @return TreeBuilder The tree builder
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         if (Kernel::VERSION_ID >= 40300) {
             $treeBuilder = new TreeBuilder('sfcod_queue');
@@ -41,7 +41,7 @@ class QueueConfiguration implements ConfigurationInterface
      *
      * @param ArrayNodeDefinition $rootNode
      */
-    private function addConnections(ArrayNodeDefinition $rootNode)
+    private function addConnections(ArrayNodeDefinition $rootNode): void
     {
         $rootNode
             ->children()

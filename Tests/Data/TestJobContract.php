@@ -29,7 +29,7 @@ class TestJobContract extends JobContract
      */
     public function getJobId(): string
     {
-        return uniqid();
+        return uniqid('', true);
     }
 
     /**
@@ -47,7 +47,7 @@ class TestJobContract extends JobContract
      *
      * @return ContainerInterface
      */
-    public function getContainer()
+    public function getContainer(): ContainerInterface
     {
         return $this->_container;
     }
@@ -57,7 +57,7 @@ class TestJobContract extends JobContract
      *
      * @throws SuccessJobException
      */
-    public function delete()
+    public function delete(): void
     {
         throw new SuccessJobException('Job was deleted.');
     }

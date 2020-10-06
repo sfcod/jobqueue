@@ -28,14 +28,14 @@ interface JobContractInterface
      *
      * @return array
      */
-    public function payload();
+    public function payload(): array;
 
     /**
      * Fire the job.
      *
      * @return void
      */
-    public function fire();
+    public function fire(): void;
 
     /**
      * Release the job back into the queue.
@@ -51,7 +51,7 @@ interface JobContractInterface
      *
      * @return void
      */
-    public function delete();
+    public function delete(): void;
 
     /**
      * Determine if the job has been deleted.
@@ -77,11 +77,11 @@ interface JobContractInterface
     /**
      * Process an exception that caused the job to fail.
      *
-     * @param \Throwable $e
+     * @param \Exception $e
      *
      * @return void
      */
-    public function failed($e);
+    public function failed(\Exception $e): void;
 
     /**
      * Get the number of times to attempt a job.

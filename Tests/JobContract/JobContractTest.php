@@ -3,6 +3,7 @@
 namespace SfCod\QueueBundle\Tests\JobContract;
 
 use Exception;
+use MongoDB\BSON\ObjectID;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
@@ -22,96 +23,91 @@ class JobContractTest extends TestCase
     /**
      * Test job
      */
-    public function testJob()
+    public function testJob(): void
     {
         $job = $this->mockJob();
         $contract = $this->mockJobContract($job);
 
-        $this->assertEquals($job->getId(), $contract->getJobId());
-        $this->assertEquals($job->getAttempts(), $contract->attempts());
-        $this->assertEquals($job->isReserved(), $contract->reserved());
-        $this->assertEquals($job->getReservedAt(), $contract->reservedAt());
-        $this->assertEquals($job->getPayload(), $contract->payload());
+        self::assertEquals($job->getId(), $contract->getJobId());
+        self::assertEquals($job->getAttempts(), $contract->attempts());
+        self::assertEquals($job->isReserved(), $contract->reserved());
+        self::assertEquals($job->getReservedAt(), $contract->reservedAt());
+        self::assertEquals($job->getPayload(), $contract->payload());
     }
 
     /**
      * Test job payload
      */
-    public function testJobPayload()
+    public function testJobPayload(): void
     {
         $job = $this->mockJob();
         $contract = $this->mockJobContract($job);
 
-        $this->assertEquals($job->getPayload(), $contract->payload());
-        $this->assertEquals($job->getPayload()['job'], $contract->getName());
-        $this->assertEquals($job->getPayload()['data'], $contract->getData());
-        $this->assertEquals($job->getPayload()['maxTries'], $contract->maxTries());
-        $this->assertEquals($job->getPayload()['timeout'], $contract->timeout());
-        $this->assertEquals($job->getPayload()['timeoutAt'], $contract->timeoutAt());
+        self::assertEquals($job->getPayload(), $contract->payload());
+        self::assertEquals($job->getPayload()['job'], $contract->getName());
+        self::assertEquals($job->getPayload()['data'], $contract->getData());
+        self::assertEquals($job->getPayload()['maxTries'], $contract->maxTries());
+        self::assertEquals($job->getPayload()['timeout'], $contract->timeout());
+        self::assertEquals($job->getPayload()['timeoutAt'], $contract->timeoutAt());
     }
 
     /**
      * Test contract
      */
-    public function testContract()
+    public function testContract(): void
     {
         $job = $this->mockJob();
         $contract = $this->mockJobContract($job);
 
-        $this->assertFalse($contract->isDeleted());
-        $this->assertFalse($contract->isDeletedOrReleased());
+        self::assertFalse($contract->isDeleted());
+        self::assertFalse($contract->isDeletedOrReleased());
 
         $contract->delete();
 
-        $this->assertTrue($contract->isDeleted());
-        $this->assertTrue($contract->isDeletedOrReleased());
+        self::assertTrue($contract->isDeleted());
+        self::assertTrue($contract->isDeletedOrReleased());
 
-        $this->assertFalse($contract->isReleased());
+        self::assertFalse($contract->isReleased());
 
         $contract->release();
 
-        $this->assertTrue($contract->isReleased());
+        self::assertTrue($contract->isReleased());
 
-        $this->assertFalse($contract->hasFailed());
+        self::assertFalse($contract->hasFailed());
 
         $contract->markAsFailed();
 
-        $this->assertTrue($contract->hasFailed());
+        self::assertTrue($contract->hasFailed());
     }
 
     /**
      * Test contract main actions
      */
-    public function testActions()
+    public function testActions(): void
     {
         $job = $this->mockJob();
 
-        $exception = new Exception(uniqid('message_'));
+        $exception = new Exception(uniqid('message_', true));
 
-        $jobInstance = $this->getMockBuilder(JobInterface::class)
-            ->setMethods([
-                'fire',
-                'failed',
-            ])
-            ->getMock();
+        $jobInstance = $this->createMock(JobInterface::class);
         $jobInstance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('fire')
-            ->with($this->anything(), $this->equalTo($job->getPayload()['data']));
+            ->with(self::anything(), self::equalTo($job->getPayload()['data']));
         $jobInstance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('failed')
-            ->with($this->equalTo($job->getPayload()['data']), $this->equalTo($exception));
+            ->with(self::equalTo($job->getPayload()['data']), self::equalTo($exception));
 
         $contract = $this->mockJobContract($job, $jobInstance);
 
         $contract->fire();
 
-        $this->assertFalse($contract->hasFailed());
+        self::assertFalse($contract->hasFailed());
 
         $contract->failed($exception);
 
-        $this->assertTrue($contract->hasFailed());
+        self::assertTrue($contract->hasFailed());
     }
 
     /**
@@ -122,17 +118,17 @@ class JobContractTest extends TestCase
     private function mockJob(): Job
     {
         $job = new Job();
-        $job->setId(new \MongoDB\BSON\ObjectID());
-        $job->setQueue(uniqid('queue_'));
-        $job->setAttempts(rand(1, 10));
-        $job->setReserved((bool)rand(0, 1));
+        $job->setId(new ObjectID());
+        $job->setQueue(uniqid('queue_', true));
+        $job->setAttempts(random_int(1, 10));
+        $job->setReserved((bool)random_int(0, 1));
         $job->setReservedAt(time());
         $job->setPayload([
-            'job' => uniqid('job_'),
+            'job' => uniqid('job_', true),
             'data' => range(1, 10),
-            'maxTries' => rand(1, 10),
-            'timeout' => rand(1, 1000),
-            'timeoutAt' => time() + rand(1, 1000),
+            'maxTries' => random_int(1, 10),
+            'timeout' => random_int(1, 1000),
+            'timeoutAt' => time() + random_int(1, 1000),
         ]);
 
         return $job;
@@ -141,14 +137,14 @@ class JobContractTest extends TestCase
     /**
      * Mock mongo job contract
      *
-     * @param Job $job
+     * @param Job $jobData
      * @param JobInterface|null $jobInstance
      *
      * @return JobContract
      */
     private function mockJobContract(Job $jobData, ?JobInterface $jobInstance = null): JobContract
     {
-        $queueName = uniqid('queue_name_');
+        $queueName = uniqid('queue_name_', true);
         $queue = $this->createMock(QueueInterface::class);
 
         if (is_null($jobInstance)) {
@@ -159,9 +155,10 @@ class JobContractTest extends TestCase
         $resolver
             ->expects($this->any())
             ->method('resolve')
-            ->with($this->equalTo($jobData->getPayload()['job']))
-            ->will($this->returnValue($jobInstance));
+            ->with(self::equalTo($jobData->getPayload()['job']))
+            ->willReturn($jobInstance);
 
+        /** @var JobContract $contract */
         $contract = $this->getMockBuilder(JobContract::class)
             ->setConstructorArgs([$resolver, $queue, $jobData, $queueName])
             ->setMethods(null)

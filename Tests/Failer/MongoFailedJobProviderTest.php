@@ -22,9 +22,9 @@ class MongoFailedJobProviderTest extends TestCase
     /**
      * Test failed jobs logging
      */
-    public function testLog()
+    public function testLog(): void
     {
-        list($connection, $queue, $payload, $exception, $collection) = $this->mockData();
+        [$connection, $queue, $payload, $exception, $collection] = $this->mockData();
 
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
@@ -38,15 +38,15 @@ class MongoFailedJobProviderTest extends TestCase
             'exception' => $exception->getMessage(),
         ]);
 
-        $this->assertNotNull($record, 'Log missed in mongodb.');
+        self::assertNotNull($record, 'Log missed in mongodb.');
     }
 
     /**
      * Test fetching all failed jobs
      */
-    public function testAll()
+    public function testAll(): void
     {
-        list($connection, $queue, $payload, $exception, $collection) = $this->mockData();
+        [$connection, $queue, $payload, $exception, $collection] = $this->mockData();
 
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
@@ -55,17 +55,17 @@ class MongoFailedJobProviderTest extends TestCase
             $provider->log($connection, $queue, $payload, $exception);
         }
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(10, $count);
+        self::assertEquals(10, $count);
     }
 
     /**
      * Test find jobs
      */
-    public function testFind()
+    public function testFind(): void
     {
-        list($connection, $queue, $payload, $exception, $collection) = $this->mockData();
+        [$connection, $queue, $payload, $exception, $collection] = $this->mockData();
 
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
@@ -79,16 +79,16 @@ class MongoFailedJobProviderTest extends TestCase
             'exception' => $exception->getMessage(),
         ]);
 
-        $this->assertNotNull($record);
-        $this->assertInstanceOf(Job::class, $provider->find($record->_id));
+        self::assertNotNull($record);
+        self::assertInstanceOf(Job::class, $provider->find($record->_id));
     }
 
     /**
      * Test forget failed job
      */
-    public function testForget()
+    public function testForget(): void
     {
-        list($connection, $queue, $payload, $exception, $collection) = $this->mockData();
+        [$connection, $queue, $payload, $exception, $collection] = $this->mockData();
 
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
@@ -106,15 +106,15 @@ class MongoFailedJobProviderTest extends TestCase
 
         $record = $database->selectCollection($collection)->findOne(['_id' => $record->_id]);
 
-        $this->assertNull($record);
+        self::assertNull($record);
     }
 
     /**
      * Test flush failed jobs
      */
-    public function testFlush()
+    public function testFlush(): void
     {
-        list($connection, $queue, $payload, $exception, $collection) = $this->mockData();
+        [$connection, $queue, $payload, $exception, $collection] = $this->mockData();
 
         $database = new MockDatabase();
         $provider = $this->mockProvider($database, $collection);
@@ -123,14 +123,14 @@ class MongoFailedJobProviderTest extends TestCase
             $provider->log($connection, $queue, $payload, $exception);
         }
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(10, $count);
+        self::assertEquals(10, $count);
 
         $provider->flush();
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(0, $count);
+        self::assertEquals(0, $count);
     }
 
     /**
@@ -141,10 +141,10 @@ class MongoFailedJobProviderTest extends TestCase
     private function mockData(): array
     {
         return array_values([
-            'connection' => uniqid('connection_'),
-            'queue' => uniqid('queue_'),
+            'connection' => uniqid('connection_', true),
+            'queue' => uniqid('queue_', true),
             'payload' => json_encode(range(1, 10)),
-            'exception' => new Exception(uniqid('message_')),
+            'exception' => new Exception(uniqid('message_', true)),
             'collection' => 'queue_jobs_failed_test',
         ]);
     }
@@ -161,12 +161,9 @@ class MongoFailedJobProviderTest extends TestCase
     {
         $mongo = $this->createMock(MongoDriverInterface::class);
         $mongo
-            ->expects($this->any())
             ->method('getDatabase')
-            ->will($this->returnValue($database));
+            ->willReturn($database);
 
-        $provider = new MongoFailedJobProvider($mongo, $collection);
-
-        return $provider;
+        return new MongoFailedJobProvider($mongo, $collection);
     }
 }

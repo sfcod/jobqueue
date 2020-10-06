@@ -21,7 +21,6 @@ use SfCod\QueueBundle\Service\MongoDriver;
 use SfCod\QueueBundle\Service\QueueManager;
 use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -45,7 +44,7 @@ class QueueExtension extends Extension
      *
      * @throws \ReflectionException
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
         $configuration = new QueueConfiguration();
 
@@ -75,17 +74,17 @@ class QueueExtension extends Extension
      *
      * @return string
      */
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'sfcod_queue';
     }
 
     /**
-     * @deprecated will be removed some day, use services with tag "sfcod.jobqueue.job"
-     *
      * @param array $config
+     * @param ContainerBuilder $container
      *
      * @return array
+     * @deprecated will be removed some day, use services with tag "sfcod.jobqueue.job"
      */
     private function grabJobs(array $config, ContainerBuilder $container): array
     {
@@ -110,7 +109,7 @@ class QueueExtension extends Extension
      * @param array $config
      * @param ContainerBuilder $container
      */
-    private function createCommands(array $config, ContainerBuilder $container)
+    private function createCommands(array $config, ContainerBuilder $container): void
     {
         $work = new Definition(WorkCommand::class);
         $work->setArguments([
@@ -144,7 +143,7 @@ class QueueExtension extends Extension
      * @param array $config
      * @param ContainerBuilder $container
      */
-    private function createManager(array $config, ContainerBuilder $container)
+    private function createManager(array $config, ContainerBuilder $container): void
     {
         $resolver = new Definition(JobResolverInterface::class);
         $resolver->setClass(JobResolver::class);
@@ -182,7 +181,7 @@ class QueueExtension extends Extension
      * @param array $config
      * @param ContainerBuilder $container
      */
-    private function createDriver(array $config, ContainerBuilder $container)
+    private function createDriver(array $config, ContainerBuilder $container): void
     {
         $mongo = new Definition(MongoDriverInterface::class);
         $mongo->setClass(MongoDriver::class);
@@ -202,7 +201,7 @@ class QueueExtension extends Extension
      * @param array $config
      * @param ContainerBuilder $container
      */
-    private function createJobQueue(array $config, ContainerBuilder $container)
+    private function createJobQueue(array $config, ContainerBuilder $container): void
     {
         $jobQueue = new Definition(JobQueue::class);
         $jobQueue->setPublic(true);
@@ -219,7 +218,7 @@ class QueueExtension extends Extension
      * @param array $config
      * @param ContainerBuilder $container
      */
-    private function createWorker(array $config, ContainerBuilder $container)
+    private function createWorker(array $config, ContainerBuilder $container): void
     {
         $worker = new Definition(Worker::class);
         $worker
@@ -259,7 +258,7 @@ class QueueExtension extends Extension
      * @param array $config
      * @param ContainerBuilder $container
      */
-    private function createJobProcess(array $config, ContainerBuilder $container)
+    private function createJobProcess(array $config, ContainerBuilder $container): void
     {
         $jobProcess = new Definition(JobProcess::class);
         $jobProcess->setArguments([

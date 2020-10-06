@@ -19,10 +19,10 @@ class JobTest extends TestCase
      */
     public function testJob()
     {
-        $id = rand(1, 99999);
-        $attempts = rand(1, 10);
-        $queue = uniqid('queue_');
-        $reserved = (bool)rand(0, 1);
+        $id = random_int(1, 99999);
+        $attempts = random_int(1, 10);
+        $queue = uniqid('queue_', true);
+        $reserved = (bool)random_int(0, 1);
         $reservedAt = time();
         $payload = range(1, 100);
 
@@ -34,11 +34,11 @@ class JobTest extends TestCase
         $job->setReservedAt($reservedAt);
         $job->setPayload($payload);
 
-        $this->assertEquals($id, $job->getId());
-        $this->assertEquals($attempts, $job->getAttempts());
-        $this->assertEquals($queue, $job->getQueue());
-        $this->assertEquals($reserved, $job->isReserved());
-        $this->assertEquals($reservedAt, $job->getReservedAt());
-        $this->assertEquals($payload, $job->getPayload());
+        self::assertEquals($id, $job->getId());
+        self::assertEquals($attempts, $job->getAttempts());
+        self::assertEquals($queue, $job->getQueue());
+        self::assertEquals($reserved, $job->isReserved());
+        self::assertEquals($reservedAt, $job->getReservedAt());
+        self::assertEquals($payload, $job->getPayload());
     }
 }

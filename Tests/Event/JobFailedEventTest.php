@@ -20,19 +20,19 @@ class JobFailedEventTest extends TestCase
     /**
      * Test event
      */
-    public function testEvent()
+    public function testEvent(): void
     {
-        $message = uniqid('message_');
-        $connectionName = uniqid('connection_');
+        $message = uniqid('message_', true);
+        $connectionName = uniqid('connection_', true);
         $job = $this->createMock(JobContractInterface::class);
         $exception = new Exception($message);
 
         $event = new JobFailedEvent($connectionName, $job, $exception);
 
-        $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals($connectionName, $event->getConnectionName());
-        $this->assertEquals($job, $event->getJob());
-        $this->assertEquals($exception, $event->getException());
-        $this->assertEquals($exception->getMessage(), $event->getException()->getMessage());
+        self::assertInstanceOf(Event::class, $event);
+        self::assertEquals($connectionName, $event->getConnectionName());
+        self::assertEquals($job, $event->getJob());
+        self::assertEquals($exception, $event->getException());
+        self::assertEquals($exception->getMessage(), $event->getException()->getMessage());
     }
 }

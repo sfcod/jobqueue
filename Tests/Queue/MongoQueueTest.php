@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
+use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
 
@@ -23,10 +24,10 @@ class MongoQueueTest extends TestCase
     /**
      * Test pushing into database
      */
-    public function testPush()
+    public function testPush(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -35,22 +36,22 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->push($jobName, $data);
 
-        $this->assertEquals(1, $database->selectCollection($collection)->count());
+        self::assertEquals(1, $database->selectCollection($collection)->countDocuments());
 
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
     }
 
     /**
      * Test pop from queue
      */
-    public function testPop()
+    public function testPop(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -60,17 +61,17 @@ class MongoQueueTest extends TestCase
         $mongoQueue->push($jobName, $data);
 
         $job = $mongoQueue->pop();
-        $this->assertEquals($jobName, $job->getName());
-        $this->assertEquals($data, $job->payload()['data']);
+        self::assertEquals($jobName, $job->getName());
+        self::assertEquals($data, $job->payload()['data']);
     }
 
     /**
      * Test if job exists
      */
-    public function testExists()
+    public function testExists(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -79,16 +80,16 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->push($jobName, $data);
 
-        $this->assertTrue($mongoQueue->exists($jobName, $data));
+        self::assertTrue($mongoQueue->exists($jobName, $data));
     }
 
     /**
      * Test pushing into database
      */
-    public function testPushOn()
+    public function testPushOn(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -97,22 +98,22 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->pushOn('default', $jobName, $data);
 
-        $this->assertEquals(1, $database->selectCollection($collection)->count());
+        self::assertEquals(1, $database->selectCollection($collection)->countDocuments());
 
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
     }
 
     /**
      * Test pushing into database
      */
-    public function testPushRaw()
+    public function testPushRaw(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -121,25 +122,25 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->pushRaw(json_encode(['job' => $jobName, 'data' => $data]));
 
-        $count = $database->selectCollection($collection)->count();
-        $this->assertEquals(1, $count);
+        $count = $database->selectCollection($collection)->countDocuments();
+        self::assertEquals(1, $count);
 
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
     }
 
     /**
      * Test pushing job for later
      */
-    public function testLater()
+    public function testLater(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
-        $delay = rand(60, 3600);
+        $delay = random_int(60, 3600);
 
         $database = new MockDatabase();
 
@@ -150,25 +151,25 @@ class MongoQueueTest extends TestCase
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
 
-        $this->assertGreaterThan(time() + $delay - 10, $job->available_at);
+        self::assertGreaterThan(time() + $delay - 10, $job->available_at);
     }
 
     /**
      * Test pushing bulk
      */
-    public function testBulk()
+    public function testBulk(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
-        $delay = rand(60, 3600);
 
         $database = new MockDatabase();
-
         $mongoQueue = $this->mockMongoQueue($database, $collection);
+
+        $jobs = [];
 
         for ($i = 0; $i < 10; ++$i) {
             $jobs[] = $jobName . $i;
@@ -176,28 +177,24 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->bulk($jobs, $data);
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(10, $count);
+        self::assertEquals(10, $count);
     }
 
     /**
      * Test release
      */
-    public function testRelease()
+    public function testRelease(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
-
         $mongoQueue = $this->mockMongoQueue($database, $collection);
-
         $mongoQueue->push($jobName, $data);
-
         $job = $database->selectCollection($collection)->findOne();
-
         $database->selectCollection($collection)->deleteMany([]);
 
         $jobToRelease = new Job();
@@ -205,20 +202,24 @@ class MongoQueueTest extends TestCase
         $jobToRelease->setQueue($job->queue);
         $jobToRelease->setAttempts($job->attempts);
 
-        $mongoQueue->release($jobToRelease, 0);
+        $jobResolver = $this->createMock(JobResolverInterface::class);
 
-        $count = $database->selectCollection($collection)->count();
+        $jobContract = new JobContract($jobResolver, $mongoQueue, $jobToRelease);
 
-        $this->assertEquals(1, $count);
+        $mongoQueue->release($jobContract, 0);
+
+        $count = $database->selectCollection($collection)->countDocuments();
+
+        self::assertEquals(1, $count);
     }
 
     /**
      * Test getting job by id
      */
-    public function testGetJobById()
+    public function testGetJobById(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -231,17 +232,17 @@ class MongoQueueTest extends TestCase
 
         $jobContract = $mongoQueue->getJobById($job->_id);
 
-        $this->assertInstanceOf(JobContractInterface::class, $jobContract);
-        $this->assertEquals($jobContract->getName(), $jobName);
+        self::assertInstanceOf(JobContractInterface::class, $jobContract);
+        self::assertEquals($jobContract->getName(), $jobName);
     }
 
     /**
      * Test deleting reserved
      */
-    public function testDeleteReserved()
+    public function testDeleteReserved(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -250,27 +251,27 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->push($jobName, $data);
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(1, $count);
+        self::assertEquals(1, $count);
 
         $job = $database->selectCollection($collection)->findOne();
         $result = $mongoQueue->deleteReserved($job->queue, $job->_id);
 
-        $this->assertTrue($result);
+        self::assertTrue($result);
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(0, $count);
+        self::assertEquals(0, $count);
     }
 
     /**
      * Test expire queue
      */
-    public function testExpire()
+    public function testExpire(): void
     {
-        $collection = uniqid('collection_');
-        $expire = rand(1, 99999);
+        $collection = uniqid('collection_', true);
+        $expire = random_int(1, 99999);
 
         $database = new MockDatabase();
 
@@ -278,16 +279,16 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->setExpire($expire);
 
-        $this->assertEquals($expire, $mongoQueue->getExpire());
+        self::assertEquals($expire, $mongoQueue->getExpire());
     }
 
     /**
      * Test queue's size
      */
-    public function testSize()
+    public function testSize(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -300,19 +301,19 @@ class MongoQueueTest extends TestCase
 
         $job = $database->selectCollection($collection)->findOne();
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals($count, $mongoQueue->size());
-        $this->assertEquals($count, $mongoQueue->size($job->queue));
+        self::assertEquals($count, $mongoQueue->size());
+        self::assertEquals($count, $mongoQueue->size($job->queue));
     }
 
     /**
      * Test can run job
      */
-    public function testCanRunJob()
+    public function testCanRunJob(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -328,16 +329,16 @@ class MongoQueueTest extends TestCase
 
         $canRun = $mongoQueue->canRunJob($jobContract);
 
-        $this->assertTrue($canRun);
+        self::assertTrue($canRun);
     }
 
     /**
      * Test mark job as reserved
      */
-    public function testMarkJobAsReserved()
+    public function testMarkJobAsReserved(): void
     {
-        $collection = uniqid('collection_');
-        $jobName = uniqid('job_');
+        $collection = uniqid('collection_', true);
+        $jobName = uniqid('job_', true);
         $data = range(1, 10);
 
         $database = new MockDatabase();
@@ -356,9 +357,9 @@ class MongoQueueTest extends TestCase
 
         $reservedJob = $database->selectCollection($collection)->findOne();
 
-        $this->assertTrue((bool)$reservedJob->reserved);
-        $this->assertGreaterThan($attempts, $reservedJob->attempts);
-        $this->assertNotNull($reservedJob->reserved_at);
+        self::assertTrue((bool)$reservedJob->reserved);
+        self::assertGreaterThan($attempts, $reservedJob->attempts);
+        self::assertNotNull($reservedJob->reserved_at);
     }
 
     /**
@@ -374,12 +375,9 @@ class MongoQueueTest extends TestCase
         $jobResolver = $this->createMock(JobResolverInterface::class);
         $mongo = $this->createMock(MongoDriverInterface::class);
         $mongo
-            ->expects($this->any())
             ->method('getDatabase')
-            ->will($this->returnValue($database));
+            ->willReturn($database);
 
-        $mongoQueue = new MongoQueue($jobResolver, $mongo, $collection);
-
-        return $mongoQueue;
+        return new MongoQueue($jobResolver, $mongo, $collection);
     }
 }

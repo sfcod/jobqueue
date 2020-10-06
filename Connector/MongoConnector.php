@@ -50,7 +50,7 @@ class MongoConnector implements ConnectorInterface
             'limit' => 15,
         ], $config);
 
-        $mongoQueue = new MongoQueue(
+        return new MongoQueue(
             $this->jobResolver,
             $this->mongoDriver,
             $config['collection'],
@@ -58,7 +58,5 @@ class MongoConnector implements ConnectorInterface
             $config['expire'],
             $config['limit']
         );
-
-        return $mongoQueue;
     }
 }
