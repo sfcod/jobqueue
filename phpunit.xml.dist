@@ -12,9 +12,15 @@
 >
   <testsuites>
     <testsuite name="Job Queue Bundle">
-      <directory>./Tests</directory>
+      <directory>./tests</directory>
     </testsuite>
   </testsuites>
+
+  <filter>
+    <whitelist processUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
 
   <php>
     <ini name="error_reporting" value="-1" />
