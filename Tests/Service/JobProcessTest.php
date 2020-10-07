@@ -5,6 +5,7 @@ namespace SfCod\QueueBundle\Tests\Service;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Service\JobProcess;
+use SfCod\QueueBundle\Worker\Options;
 
 /**
  * Class JobProcessTest
@@ -42,9 +43,13 @@ class JobProcessTest extends TestCase
 
         $connectionName = uniqid('connection_');
 
-        $process = $jobProcess->getProcess($job, $connectionName);
+        $job
+            ->method('getConnectionName')
+            ->willReturn($connectionName);
 
-        $command = sprintf("'php' %s job-queue:run-job %s --connection=%s --queue=%s --env=%s > /dev/null 2>&1 &", $scriptName, $job->getJobId(), $connectionName, $job->getQueue(), getenv('APP_ENV'));
+        $process = $jobProcess->getProcess($job, new Options());
+
+        $command = sprintf("'php' %s job-queue:run-job %s --connection=%s --queue=%s --env=%s --delay=0 --memory=128 --timeout=60 --sleep=3 --maxTries=0 > /dev/null 2>&1 &", $scriptName, $job->getJobId(), $connectionName, $job->getQueue(), getenv('APP_ENV'));
 
         $this->assertEquals($command, $process->getCommandLine());
     }

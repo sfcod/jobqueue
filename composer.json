@@ -25,11 +25,20 @@
     "require-dev": {
         "symfony/phpunit-bridge": "^4.0",
         "friendsofphp/php-cs-fixer": "^2.8",
-        "helmich/mongomock": "^2.1"
+        "helmich/mongomock": "^2.1",
+        "phpunit/phpunit": "^7.5"
     },
     "autoload": {
         "psr-4": {
             "SfCod\\QueueBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SfCod\\QueueBundle\\Tests\\": "/Tests/"
         }
     }
 }
