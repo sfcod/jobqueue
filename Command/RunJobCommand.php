@@ -24,8 +24,7 @@ class RunJobCommand extends Command
 
     /**
      * RunJobCommand constructor.
-     *
-     * @param LoggerInterface $logger
+     * @param Worker $worker
      */
     public function __construct(Worker $worker)
     {

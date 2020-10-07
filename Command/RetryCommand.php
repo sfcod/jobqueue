@@ -33,8 +33,6 @@ class RetryCommand extends Command
 
     /**
      * RetryCommand constructor.
-     *
-     * @param MongoDriverInterface $mongoDriver
      */
     public function __construct(JobQueue $queue, FailedJobProviderInterface $failer)
     {

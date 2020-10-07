@@ -46,7 +46,7 @@ class Worker
     /**
      * Logger instance
      *
-     * @var ExceptionHandler
+     * @var ExceptionHandlerInterface
      */
     private $exceptions;
 
@@ -65,12 +65,12 @@ class Worker
     /**
      * @var JobProcess
      */
-    private $jobProcess;
+    private $process;
 
     /**
      * Worker constructor.
      *
-     * @param QueueInterface $queue
+     * @param QueueManager $queueManager
      * @param JobProcess $process
      * @param FailedJobProviderInterface $failer
      * @param ExceptionHandlerInterface $exceptions
@@ -251,7 +251,7 @@ class Worker
      */
     public function stop(int $status = 0)
     {
-        $this->dispatcher->dispatch(self::EVENT_STOP, new WorkerStoppingEvent());
+        $this->dispatcher->dispatch(new WorkerStoppingEvent(), self::EVENT_STOP);
 
         exit(0);
     }
@@ -409,7 +409,7 @@ class Worker
      */
     protected function raiseBeforeJobEvent(string $connectionName, JobContractInterface $job)
     {
-        $this->dispatcher->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessingEvent($connectionName, $job));
+        $this->dispatcher->dispatch(new JobProcessingEvent($connectionName, $job), self::EVENT_RAISE_AFTER_JOB);
     }
 
     /**
@@ -420,7 +420,7 @@ class Worker
      */
     protected function raiseAfterJobEvent(string $connectionName, JobContractInterface $job)
     {
-        $this->dispatcher->dispatch(self::EVENT_RAISE_AFTER_JOB, new JobProcessedEvent($connectionName, $job));
+        $this->dispatcher->dispatch(new JobProcessedEvent($connectionName, $job), self::EVENT_RAISE_AFTER_JOB);
     }
 
     /**
@@ -432,7 +432,7 @@ class Worker
      */
     protected function raiseExceptionOccurredJobEvent(string $connectionName, JobContractInterface $job, Exception $e)
     {
-        $this->dispatcher->dispatch(self::EVENT_RAISE_EXCEPTION_OCCURED_JOB, new JobExceptionOccurredEvent($connectionName, $job, $e));
+        $this->dispatcher->dispatch(new JobExceptionOccurredEvent($connectionName, $job, $e), self::EVENT_RAISE_EXCEPTION_OCCURED_JOB);
     }
 
     /**
@@ -444,6 +444,6 @@ class Worker
      */
     protected function raiseFailedJobEvent(string $connectionName, JobContractInterface $job, Exception $e)
     {
-        $this->dispatcher->dispatch(self::EVENT_RAISE_FAILED_JOB, new JobFailedEvent($connectionName, $job, $e));
+        $this->dispatcher->dispatch(new JobFailedEvent($connectionName, $job, $e), self::EVENT_RAISE_FAILED_JOB);
     }
 }
