@@ -3,7 +3,7 @@
 namespace SfCod\QueueBundle\Event;
 
 use SfCod\QueueBundle\Job\JobContractInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class JobProcessedEvent

@@ -41,9 +41,9 @@ class ExceptionHandlerTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('error')
-            ->with($this->equalTo($exception->getMessage()), $this->equalTo(['exception' => $exception]));
+            ->with(self::equalTo($exception->getMessage()), self::equalTo(['exception' => $exception]));
 
         return $logger;
     }

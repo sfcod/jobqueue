@@ -36,6 +36,6 @@ class MongoConnectorTest extends TestCase
 
         $queue = $connector->connect($config);
 
-        $this->assertInstanceOf(MongoQueue::class, $queue);
+        self::assertInstanceOf(MongoQueue::class, $queue);
     }
 }

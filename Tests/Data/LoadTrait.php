@@ -30,7 +30,7 @@ trait LoadTrait
      */
     protected function configure()
     {
-        $dotenv = new Dotenv();
+        $dotenv = new Dotenv(true);
         try {
             $dotenv->load(__DIR__ . '/../../.env');
         } catch (PathException $e) {

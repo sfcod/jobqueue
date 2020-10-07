@@ -6,7 +6,7 @@ use Exception;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Event\JobExceptionOccurredEvent;
 use SfCod\QueueBundle\Job\JobContractInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class JobExceptionOccurredEventTest
@@ -29,10 +29,10 @@ class JobExceptionOccurredEventTest extends TestCase
 
         $event = new JobExceptionOccurredEvent($connectionName, $job, $exception);
 
-        $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals($connectionName, $event->getConnectionName());
-        $this->assertEquals($job, $event->getJob());
-        $this->assertEquals($exception, $event->getException());
-        $this->assertEquals($exception->getMessage(), $event->getException()->getMessage());
+        self::assertInstanceOf(Event::class, $event);
+        self::assertEquals($connectionName, $event->getConnectionName());
+        self::assertEquals($job, $event->getJob());
+        self::assertEquals($exception, $event->getException());
+        self::assertEquals($exception->getMessage(), $event->getException()->getMessage());
     }
 }

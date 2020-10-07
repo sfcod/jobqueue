@@ -34,7 +34,6 @@ class RetryCommand extends Command
     /**
      * RetryCommand constructor.
      *
-     * @param JobQueue $queue
      * @param MongoDriverInterface $mongoDriver
      */
     public function __construct(JobQueue $queue, FailedJobProviderInterface $failer)
@@ -58,10 +57,7 @@ class RetryCommand extends Command
     /**
      * Execute command
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return int|null|void
+     * @return int|void|null
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
@@ -82,14 +78,12 @@ class RetryCommand extends Command
         }
 
         $io->success(sprintf("[%d] job(s) has been released.\n", $jobsCount));
+
+        return 0;
     }
 
     /**
      * Retry job
-     *
-     * @param Job $job
-     *
-     * @return bool
      */
     protected function retryJob(Job $job): bool
     {

@@ -5,7 +5,7 @@ namespace SfCod\QueueBundle\Tests\Event;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Event\JobProcessedEvent;
 use SfCod\QueueBundle\Job\JobContractInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class JobProcessedEventTest
@@ -26,8 +26,8 @@ class JobProcessedEventTest extends TestCase
 
         $event = new JobProcessedEvent($connectionName, $job);
 
-        $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals($connectionName, $event->getConnectionName());
-        $this->assertEquals($job, $event->getJob());
+        self::assertInstanceOf(Event::class, $event);
+        self::assertEquals($connectionName, $event->getConnectionName());
+        self::assertEquals($job, $event->getJob());
     }
 }

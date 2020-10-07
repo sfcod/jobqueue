@@ -27,8 +27,6 @@ class WorkCommand extends Command
 
     /**
      * WorkCommand constructor.
-     *
-     * @param Worker $worker
      */
     public function __construct(Worker $worker)
     {
@@ -56,10 +54,7 @@ class WorkCommand extends Command
     /**
      * Execute command
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return int|null|void
+     * @return int|void|null
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
@@ -78,5 +73,7 @@ class WorkCommand extends Command
         $io->success(sprintf('Worker daemon has started.'));
 
         $this->worker->daemon($connection, $queue, $workerOptions);
+
+        return 0;
     }
 }

@@ -36,13 +36,13 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->push($jobName, $data);
 
-        $this->assertEquals(1, $database->selectCollection($collection)->count());
+        self::assertEquals(1, $database->selectCollection($collection)->count());
 
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
     }
 
     /**
@@ -61,8 +61,8 @@ class MongoQueueTest extends TestCase
         $mongoQueue->push($jobName, $data);
 
         $job = $mongoQueue->pop();
-        $this->assertEquals($jobName, $job->getName());
-        $this->assertEquals($data, $job->payload()['data']);
+        self::assertEquals($jobName, $job->getName());
+        self::assertEquals($data, $job->payload()['data']);
     }
 
     /**
@@ -80,7 +80,7 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->push($jobName, $data);
 
-        $this->assertTrue($mongoQueue->exists($jobName, $data));
+        self::assertTrue($mongoQueue->exists($jobName, $data));
     }
 
     /**
@@ -98,13 +98,13 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->pushOn('default', $jobName, $data);
 
-        $this->assertEquals(1, $database->selectCollection($collection)->count());
+        self::assertEquals(1, $database->selectCollection($collection)->count());
 
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
     }
 
     /**
@@ -123,13 +123,13 @@ class MongoQueueTest extends TestCase
         $mongoQueue->pushRaw(json_encode(['job' => $jobName, 'data' => $data]));
 
         $count = $database->selectCollection($collection)->count();
-        $this->assertEquals(1, $count);
+        self::assertEquals(1, $count);
 
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
     }
 
     /**
@@ -151,10 +151,10 @@ class MongoQueueTest extends TestCase
         $job = $database->selectCollection($collection)->findOne();
 
         $payload = json_decode($job->payload, true);
-        $this->assertEquals($jobName, $payload['job']);
-        $this->assertEquals($data, $payload['data']);
+        self::assertEquals($jobName, $payload['job']);
+        self::assertEquals($data, $payload['data']);
 
-        $this->assertGreaterThan(time() + $delay - 10, $job->available_at);
+        self::assertGreaterThan(time() + $delay - 10, $job->available_at);
     }
 
     /**
@@ -179,7 +179,7 @@ class MongoQueueTest extends TestCase
 
         $count = $database->selectCollection($collection)->count();
 
-        $this->assertEquals(10, $count);
+        self::assertEquals(10, $count);
     }
 
     /**
@@ -214,7 +214,7 @@ class MongoQueueTest extends TestCase
 
         $count = $database->selectCollection($collection)->count();
 
-        $this->assertEquals(1, $count);
+        self::assertEquals(1, $count);
     }
 
     /**
@@ -236,8 +236,8 @@ class MongoQueueTest extends TestCase
 
         $jobContract = $mongoQueue->getJobById($job->_id);
 
-        $this->assertInstanceOf(JobContractInterface::class, $jobContract);
-        $this->assertEquals($jobContract->getName(), $jobName);
+        self::assertInstanceOf(JobContractInterface::class, $jobContract);
+        self::assertEquals($jobContract->getName(), $jobName);
     }
 
     /**
@@ -257,16 +257,16 @@ class MongoQueueTest extends TestCase
 
         $count = $database->selectCollection($collection)->count();
 
-        $this->assertEquals(1, $count);
+        self::assertEquals(1, $count);
 
         $job = $database->selectCollection($collection)->findOne();
         $result = $mongoQueue->deleteReserved($job->queue, $job->_id);
 
-        $this->assertTrue($result);
+        self::assertTrue($result);
 
         $count = $database->selectCollection($collection)->count();
 
-        $this->assertEquals(0, $count);
+        self::assertEquals(0, $count);
     }
 
     /**
@@ -283,7 +283,7 @@ class MongoQueueTest extends TestCase
 
         $mongoQueue->setExpire($expire);
 
-        $this->assertEquals($expire, $mongoQueue->getExpire());
+        self::assertEquals($expire, $mongoQueue->getExpire());
     }
 
     /**
@@ -307,8 +307,8 @@ class MongoQueueTest extends TestCase
 
         $count = $database->selectCollection($collection)->count();
 
-        $this->assertEquals($count, $mongoQueue->size());
-        $this->assertEquals($count, $mongoQueue->size($job->queue));
+        self::assertEquals($count, $mongoQueue->size());
+        self::assertEquals($count, $mongoQueue->size($job->queue));
     }
 
     /**
@@ -333,7 +333,7 @@ class MongoQueueTest extends TestCase
 
         $canRun = $mongoQueue->canRunJob($jobContract);
 
-        $this->assertTrue($canRun);
+        self::assertTrue($canRun);
     }
 
     /**
@@ -361,9 +361,9 @@ class MongoQueueTest extends TestCase
 
         $reservedJob = $database->selectCollection($collection)->findOne();
 
-        $this->assertTrue((bool)$reservedJob->reserved);
-        $this->assertGreaterThan($attempts, $reservedJob->attempts);
-        $this->assertNotNull($reservedJob->reserved_at);
+        self::assertTrue((bool)$reservedJob->reserved);
+        self::assertGreaterThan($attempts, $reservedJob->attempts);
+        self::assertNotNull($reservedJob->reserved_at);
     }
 
     /**
@@ -379,9 +379,9 @@ class MongoQueueTest extends TestCase
         $jobResolver = $this->createMock(JobResolverInterface::class);
         $mongo = $this->createMock(MongoDriverInterface::class);
         $mongo
-            ->expects($this->any())
+            ->expects(self::any())
             ->method('getDatabase')
-            ->will($this->returnValue($database));
+            ->willReturn($database);
 
         $mongoQueue = new MongoQueue($jobResolver, $mongo, $collection);
 

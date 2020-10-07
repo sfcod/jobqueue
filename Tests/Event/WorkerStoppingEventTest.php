@@ -4,7 +4,7 @@ namespace SfCod\QueueBundle\Tests\Event;
 
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Event\WorkerStoppingEvent;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class WorkerStoppingEventTest
@@ -22,6 +22,6 @@ class WorkerStoppingEventTest extends TestCase
     {
         $event = new WorkerStoppingEvent();
 
-        $this->assertInstanceOf(Event::class, $event);
+        self::assertInstanceOf(Event::class, $event);
     }
 }

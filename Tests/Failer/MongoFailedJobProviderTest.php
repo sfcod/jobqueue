@@ -38,7 +38,7 @@ class MongoFailedJobProviderTest extends TestCase
             'exception' => $exception->getMessage(),
         ]);
 
-        $this->assertNotNull($record, 'Log missed in mongodb.');
+        self::assertNotNull($record, 'Log missed in mongodb.');
     }
 
     /**
@@ -55,9 +55,9 @@ class MongoFailedJobProviderTest extends TestCase
             $provider->log($connection, $queue, $payload, $exception);
         }
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(10, $count);
+        self::assertEquals(10, $count);
     }
 
     /**
@@ -79,8 +79,8 @@ class MongoFailedJobProviderTest extends TestCase
             'exception' => $exception->getMessage(),
         ]);
 
-        $this->assertNotNull($record);
-        $this->assertInstanceOf(Job::class, $provider->find($record->_id));
+        self::assertNotNull($record);
+        self::assertInstanceOf(Job::class, $provider->find($record->_id));
     }
 
     /**
@@ -106,7 +106,7 @@ class MongoFailedJobProviderTest extends TestCase
 
         $record = $database->selectCollection($collection)->findOne(['_id' => $record->_id]);
 
-        $this->assertNull($record);
+        self::assertNull($record);
     }
 
     /**
@@ -123,14 +123,14 @@ class MongoFailedJobProviderTest extends TestCase
             $provider->log($connection, $queue, $payload, $exception);
         }
 
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(10, $count);
+        self::assertEquals(10, $count);
 
         $provider->flush();
-        $count = $database->selectCollection($collection)->count();
+        $count = $database->selectCollection($collection)->countDocuments();
 
-        $this->assertEquals(0, $count);
+        self::assertEquals(0, $count);
     }
 
     /**
@@ -161,9 +161,9 @@ class MongoFailedJobProviderTest extends TestCase
     {
         $mongo = $this->createMock(MongoDriverInterface::class);
         $mongo
-            ->expects($this->any())
+            ->expects(self::any())
             ->method('getDatabase')
-            ->will($this->returnValue($database));
+            ->willReturn($database);
 
         $provider = new MongoFailedJobProvider($mongo, $collection);
 
