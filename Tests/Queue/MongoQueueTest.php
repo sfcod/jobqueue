@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
+use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
 
@@ -205,7 +206,11 @@ class MongoQueueTest extends TestCase
         $jobToRelease->setQueue($job->queue);
         $jobToRelease->setAttempts($job->attempts);
 
-        $mongoQueue->release($jobToRelease, 0);
+        $jobResolver = $this->createMock(JobResolverInterface::class);
+
+        $jobContract = new JobContract($jobResolver, $mongoQueue, $jobToRelease);
+
+        $mongoQueue->release($jobContract, 0);
 
         $count = $database->selectCollection($collection)->count();
 
