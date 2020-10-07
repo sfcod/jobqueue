@@ -23,10 +23,8 @@ class JobProcessTest extends TestCase
     {
         $scriptName = uniqid('script_');
         $binPath = __DIR__;
-        $binary = 'php';
-        $binaryArgs = '';
 
-        $jobProcess = new JobProcess($scriptName, $binPath, $binary, $binaryArgs);
+        $jobProcess = new JobProcess($scriptName, $binPath);
 
         $jobId = uniqid('id_');
         $jobQueue = uniqid('queue_');
@@ -49,7 +47,7 @@ class JobProcessTest extends TestCase
 
         $process = $jobProcess->getProcess($job, new Options());
 
-        $command = sprintf("'%s' '%s' 'job-queue:run-job' '%s' '--connection=%s' '--queue=%s' '--env=%s' '--delay=0' '--memory=128' '--timeout=60' '--sleep=3' '--maxTries=0' ' > /dev/null 2>&1 &'", $binary, $scriptName, $job->getJobId(), $connectionName, $job->getQueue(), getenv('APP_ENV'));
+        $command = sprintf("'%s' '%s' 'job-queue:run-job' '%s' '--connection=%s' '--queue=%s' '--env=%s' '--delay=0' '--memory=128' '--timeout=60' '--sleep=3' '--maxTries=0' ' > /dev/null 2>&1 &'", 'php', $scriptName, $job->getJobId(), $connectionName, $job->getQueue(), 'prod');
 
         self::assertEquals($command, $process->getCommandLine());
     }

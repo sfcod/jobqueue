@@ -10,6 +10,7 @@ use SfCod\QueueBundle\DependencyInjection\QueueExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Dotenv\Exception\PathException;
+use Symfony\Component\HttpKernel\HttpKernel;
 
 /**
  * Trait LoadTrait
@@ -30,16 +31,10 @@ trait LoadTrait
      */
     protected function configure()
     {
-        $dotenv = new Dotenv(true);
-        try {
-            $dotenv->load(__DIR__ . '/../../.env');
-        } catch (PathException $e) {
-            // Nothing
-        }
-
         $extension = new QueueExtension();
         $container = new ContainerBuilder();
-        $container->setParameter('kernel.project_dir', getenv('KERNEL_PROJECT_DIR'));
+        $container->setParameter('kernel.project_dir', '');
+        $container->setParameter('kernel.environment', 'prod');
         $container->setParameter('kernel.root_dir', realpath(__DIR__ . '/../../../../SfCod/'));
         $container->set(LoggerInterface::class, new Logger('test'));
 

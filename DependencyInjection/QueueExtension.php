@@ -265,6 +265,7 @@ class QueueExtension extends Extension
         $jobProcess->setArguments([
             'console',
             sprintf('%s/bin', $container->getParameter('kernel.project_dir')),
+            $container->getParameter('kernel.environment'),
         ]);
 
         $container->setDefinition(JobProcess::class, $jobProcess);
