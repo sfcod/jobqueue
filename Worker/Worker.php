@@ -246,10 +246,8 @@ class Worker
 
     /**
      * Stop listening and bail out of the script.
-     *
-     * @param int $status
      */
-    public function stop(int $status = 0)
+    public function stop()
     {
         $this->dispatcher->dispatch(new WorkerStoppingEvent(), self::EVENT_STOP);
 
