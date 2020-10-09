@@ -16,14 +16,14 @@
     ],
     "require": {
         "php": "^7.1",
-        "symfony/framework-bundle": "^4.0",
+        "symfony/framework-bundle": "^4.4 || ^5.0",
         "mongodb/mongodb": "^1.1",
         "symfony/monolog-bundle": "^3.1",
-        "symfony/process": "^4.0",
-        "symfony/dotenv": "^4.0"
+        "symfony/process": "^4.4 || ^5.0",
+        "symfony/dotenv": "^4.4 || ^5.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^4.0",
+        "symfony/phpunit-bridge": "^4.4 || ^5.0",
         "friendsofphp/php-cs-fixer": "^2.8",
         "helmich/mongomock": "^2.1",
         "phpunit/phpunit": "^7.5"

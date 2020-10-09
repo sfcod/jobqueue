@@ -3,7 +3,7 @@
 namespace SfCod\QueueBundle\Event;
 
 use SfCod\QueueBundle\Job\JobContractInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class JobProcessedEvent
@@ -34,7 +34,6 @@ class JobProcessedEvent extends Event
      *
      * @param string $connectionName
      * @param JobContractInterface $job
-     * @param array $config
      */
     public function __construct(string $connectionName, JobContractInterface $job)
     {

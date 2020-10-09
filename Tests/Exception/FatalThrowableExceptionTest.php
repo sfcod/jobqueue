@@ -25,8 +25,8 @@ class FatalThrowableExceptionTest extends TestCase
         $line = __LINE__ + 1; // Exception line
         $exception = new FatalThrowableException(new Exception($message));
 
-        $this->assertEquals($message, $exception->getMessage());
-        $this->assertEquals(__FILE__, $exception->getFile());
-        $this->assertEquals($line, $exception->getLine());
+        self::assertEquals($message, $exception->getMessage());
+        self::assertEquals(__FILE__, $exception->getFile());
+        self::assertEquals($line, $exception->getLine());
     }
 }

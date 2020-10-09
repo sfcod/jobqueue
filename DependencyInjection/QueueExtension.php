@@ -21,7 +21,6 @@ use SfCod\QueueBundle\Service\MongoDriver;
 use SfCod\QueueBundle\Service\QueueManager;
 use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -265,6 +264,7 @@ class QueueExtension extends Extension
         $jobProcess->setArguments([
             'console',
             sprintf('%s/bin', $container->getParameter('kernel.project_dir')),
+            $container->getParameter('kernel.environment'),
         ]);
 
         $container->setDefinition(JobProcess::class, $jobProcess);

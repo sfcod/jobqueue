@@ -36,21 +36,29 @@ class JobProcess
     public $binaryArgs;
 
     /**
+     * @var string
+     */
+    public $environment;
+
+    /**
      * JobProcess constructor.
      *
      * @param string $scriptName
      * @param string $binPath
+     * @param string $environment
      * @param string $binary
      * @param string $binaryArgs
      */
     public function __construct(
         string $scriptName,
         string $binPath,
+        string $environment = 'prod',
         string $binary = 'php',
         string $binaryArgs = '')
     {
         $this->scriptName = $scriptName;
         $this->binPath = $binPath;
+        $this->environment = $environment;
         $this->binary = $binary;
         $this->binaryArgs = $binaryArgs;
     }
@@ -65,38 +73,22 @@ class JobProcess
      */
     public function getProcess(JobContractInterface $job, Options $options): Process
     {
-        $cmd = '%s %s job-queue:run-job %s --connection=%s --queue=%s --env=%s --delay=%s --memory=%s --timeout=%s --sleep=%s --maxTries=%s';
-        $cmd = $this->getBackgroundCommand($cmd);
-        $cmd = sprintf(
-            $cmd,
+        return new Process(array_filter([
+            defined('PHP_WINDOWS_VERSION_BUILD') ? 'start /B ' : null,
             $this->getPhpBinary(),
             $this->scriptName,
-            (string)$job->getJobId(),
-            $job->getConnectionName(),
-            $job->getQueue(),
-            getenv('APP_ENV'),
-            $options->delay,
-            $options->memory,
-            $options->timeout,
-            $options->sleep,
-            $options->maxTries
-        );
-
-        return new Process($cmd, $this->binPath);
-    }
-
-    /**
-     * @param $cmd
-     *
-     * @return string
-     */
-    protected function getBackgroundCommand(string $cmd): string
-    {
-        if (defined('PHP_WINDOWS_VERSION_BUILD')) {
-            return 'start /B ' . $cmd . ' > NUL';
-        } else {
-            return $cmd . ' > /dev/null 2>&1 &';
-        }
+            'job-queue:run-job',
+            $job->getJobId(),
+            '--connection=' . $job->getConnectionName(),
+            '--queue=' . $job->getQueue(),
+            '--env=' . $this->environment,
+            '--delay=' . $options->delay,
+            '--memory=' . $options->memory,
+            '--timeout=' . $options->timeout,
+            '--sleep=' . $options->sleep,
+            '--maxTries=' . $options->maxTries,
+            defined('PHP_WINDOWS_VERSION_BUILD') ? ' > NUL' : ' > /dev/null 2>&1 &',
+        ]), $this->binPath);
     }
 
     /**
@@ -116,6 +108,6 @@ class JobProcess
             $args = implode(' ', $args);
         }
 
-        return trim($path . ' ' . $args);
+        return trim(trim($path . ' ' . $args), '\'');
     }
 }

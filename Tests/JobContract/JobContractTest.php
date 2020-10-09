@@ -27,11 +27,11 @@ class JobContractTest extends TestCase
         $job = $this->mockJob();
         $contract = $this->mockJobContract($job);
 
-        $this->assertEquals($job->getId(), $contract->getJobId());
-        $this->assertEquals($job->getAttempts(), $contract->attempts());
-        $this->assertEquals($job->isReserved(), $contract->reserved());
-        $this->assertEquals($job->getReservedAt(), $contract->reservedAt());
-        $this->assertEquals($job->getPayload(), $contract->payload());
+        self::assertEquals($job->getId(), $contract->getJobId());
+        self::assertEquals($job->getAttempts(), $contract->attempts());
+        self::assertEquals($job->isReserved(), $contract->reserved());
+        self::assertEquals($job->getReservedAt(), $contract->reservedAt());
+        self::assertEquals($job->getPayload(), $contract->payload());
     }
 
     /**
@@ -42,12 +42,12 @@ class JobContractTest extends TestCase
         $job = $this->mockJob();
         $contract = $this->mockJobContract($job);
 
-        $this->assertEquals($job->getPayload(), $contract->payload());
-        $this->assertEquals($job->getPayload()['job'], $contract->getName());
-        $this->assertEquals($job->getPayload()['data'], $contract->getData());
-        $this->assertEquals($job->getPayload()['maxTries'], $contract->maxTries());
-        $this->assertEquals($job->getPayload()['timeout'], $contract->timeout());
-        $this->assertEquals($job->getPayload()['timeoutAt'], $contract->timeoutAt());
+        self::assertEquals($job->getPayload(), $contract->payload());
+        self::assertEquals($job->getPayload()['job'], $contract->getName());
+        self::assertEquals($job->getPayload()['data'], $contract->getData());
+        self::assertEquals($job->getPayload()['maxTries'], $contract->maxTries());
+        self::assertEquals($job->getPayload()['timeout'], $contract->timeout());
+        self::assertEquals($job->getPayload()['timeoutAt'], $contract->timeoutAt());
     }
 
     /**
@@ -58,25 +58,25 @@ class JobContractTest extends TestCase
         $job = $this->mockJob();
         $contract = $this->mockJobContract($job);
 
-        $this->assertFalse($contract->isDeleted());
-        $this->assertFalse($contract->isDeletedOrReleased());
+        self::assertFalse($contract->isDeleted());
+        self::assertFalse($contract->isDeletedOrReleased());
 
         $contract->delete();
 
-        $this->assertTrue($contract->isDeleted());
-        $this->assertTrue($contract->isDeletedOrReleased());
+        self::assertTrue($contract->isDeleted());
+        self::assertTrue($contract->isDeletedOrReleased());
 
-        $this->assertFalse($contract->isReleased());
+        self::assertFalse($contract->isReleased());
 
         $contract->release();
 
-        $this->assertTrue($contract->isReleased());
+        self::assertTrue($contract->isReleased());
 
-        $this->assertFalse($contract->hasFailed());
+        self::assertFalse($contract->hasFailed());
 
         $contract->markAsFailed();
 
-        $this->assertTrue($contract->hasFailed());
+        self::assertTrue($contract->hasFailed());
     }
 
     /**
@@ -95,23 +95,23 @@ class JobContractTest extends TestCase
             ])
             ->getMock();
         $jobInstance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('fire')
-            ->with($this->anything(), $this->equalTo($job->getPayload()['data']));
+            ->with(self::anything(), self::equalTo($job->getPayload()['data']));
         $jobInstance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('failed')
-            ->with($this->equalTo($job->getPayload()['data']), $this->equalTo($exception));
+            ->with(self::equalTo($job->getPayload()['data']), self::equalTo($exception));
 
         $contract = $this->mockJobContract($job, $jobInstance);
 
         $contract->fire();
 
-        $this->assertFalse($contract->hasFailed());
+        self::assertFalse($contract->hasFailed());
 
         $contract->failed($exception);
 
-        $this->assertTrue($contract->hasFailed());
+        self::assertTrue($contract->hasFailed());
     }
 
     /**
@@ -141,7 +141,7 @@ class JobContractTest extends TestCase
     /**
      * Mock mongo job contract
      *
-     * @param Job $job
+     * @param Job $jobData
      * @param JobInterface|null $jobInstance
      *
      * @return JobContract
@@ -157,10 +157,10 @@ class JobContractTest extends TestCase
 
         $resolver = $this->createMock(JobResolverInterface::class);
         $resolver
-            ->expects($this->any())
+            ->expects(self::any())
             ->method('resolve')
-            ->with($this->equalTo($jobData->getPayload()['job']))
-            ->will($this->returnValue($jobInstance));
+            ->with(self::equalTo($jobData->getPayload()['job']))
+            ->willReturn($jobInstance);
 
         $contract = $this->getMockBuilder(JobContract::class)
             ->setConstructorArgs([$resolver, $queue, $jobData, $queueName])

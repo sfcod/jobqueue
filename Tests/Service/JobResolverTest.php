@@ -5,7 +5,6 @@ namespace SfCod\QueueBundle\Tests\Service;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Service\JobResolver;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class JobResolverTest
@@ -27,23 +26,6 @@ class JobResolverTest extends TestCase
         $resolver = new JobResolver();
         $resolver->addJob($jobName, $jobClass);
 
-        $this->assertEquals($jobClass, $resolver->resolve($jobName));
-    }
-
-    /**
-     * Mock resolver
-     *
-     * @param ContainerInterface $container
-     *
-     * @return JobResolver
-     */
-    private function mockResolver(ContainerInterface $container): JobResolver
-    {
-        $resolver = $this->getMockBuilder(JobResolver::class)
-//            ->setConstructorArgs([$container])
-            ->setMethods(null)
-            ->getMock();
-
-        return $resolver;
+        self::assertEquals($jobClass, $resolver->resolve($jobName));
     }
 }

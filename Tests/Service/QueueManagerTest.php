@@ -26,12 +26,12 @@ class QueueManagerTest extends TestCase
 
         $queueManager = $this->mockQueueManager($driver, $connectionName);
 
-        $this->assertFalse($queueManager->connected($connectionName));
+        self::assertFalse($queueManager->connected($connectionName));
 
         $queue = $queueManager->connection($connectionName);
 
-        $this->assertInstanceOf(QueueInterface::class, $queue);
-        $this->assertTrue($queueManager->connected($connectionName));
+        self::assertInstanceOf(QueueInterface::class, $queue);
+        self::assertTrue($queueManager->connected($connectionName));
     }
 
     /**
@@ -54,17 +54,17 @@ class QueueManagerTest extends TestCase
 
         $queue = $this->createMock(QueueInterface::class);
         $queue
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('setConnectionName')
-            ->with($this->equalTo($connectionName))
-            ->will($this->returnSelf());
+            ->with(self::equalTo($connectionName))
+            ->will(self::returnSelf());
 
         $connector = $this->createMock(ConnectorInterface::class);
         $connector
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('connect')
-            ->with($this->equalTo($config))
-            ->will($this->returnValue($queue));
+            ->with(self::equalTo($config))
+            ->willReturn($queue);
 
         $queueManager = new QueueManager();
 

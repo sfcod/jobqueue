@@ -4,7 +4,7 @@ namespace SfCod\QueueBundle\Event;
 
 use Exception;
 use SfCod\QueueBundle\Job\JobContractInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class JobFailedEvent
@@ -43,7 +43,6 @@ class JobFailedEvent extends Event
      * @param string $connectionName
      * @param JobContractInterface $job
      * @param Exception $exception
-     * @param array $config
      */
     public function __construct(string $connectionName, JobContractInterface $job, Exception $exception)
     {

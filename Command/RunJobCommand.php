@@ -24,8 +24,6 @@ class RunJobCommand extends Command
 
     /**
      * RunJobCommand constructor.
-     *
-     * @param LoggerInterface $logger
      * @param Worker $worker
      */
     public function __construct(Worker $worker)
@@ -55,10 +53,7 @@ class RunJobCommand extends Command
     /**
      * Execute command
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return int|null|void
+     * @return int|void|null
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
@@ -73,5 +68,7 @@ class RunJobCommand extends Command
         $jobId = $input->getArgument('id');
 
         $this->worker->runJobById($connection, $jobId, $options);
+
+        return 0;
     }
 }

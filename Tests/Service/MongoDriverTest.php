@@ -29,11 +29,11 @@ class MongoDriverTest extends TestCase
         $driver = new MongoDriver();
         $driver->setCredentials($uri, $uriOptions, $driverOptions);
 
-        $this->assertInstanceOf(Client::class, $driver->getClient());
+        self::assertInstanceOf(Client::class, $driver->getClient());
 
         $driver->setDbname($dbName);
 
-        $this->assertInstanceOf(Database::class, $driver->getDatabase());
-        $this->assertEquals($dbName, $driver->getDatabase()->getDatabaseName());
+        self::assertInstanceOf(Database::class, $driver->getDatabase());
+        self::assertEquals($dbName, $driver->getDatabase()->getDatabaseName());
     }
 }
