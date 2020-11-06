@@ -73,22 +73,40 @@ class JobProcess
      */
     public function getProcess(JobContractInterface $job, Options $options): Process
     {
-        return new Process(array_filter([
-            defined('PHP_WINDOWS_VERSION_BUILD') ? 'start /B ' : null,
+        $command = '%s %s job-queue:run-job %s --connection=%s --queue=%s --env=%s --delay=%s --memory=%s --timeout=%s --sleep=%s --maxTries=%s';
+        $command = $this->getBackgroundCommand($command);
+        $command = sprintf(
+            $command,
             $this->getPhpBinary(),
-            $this->scriptName,
-            'job-queue:run-job',
-            $job->getJobId(),
-            '--connection=' . $job->getConnectionName(),
-            '--queue=' . $job->getQueue(),
-            '--env=' . $this->environment,
-            '--delay=' . $options->delay,
-            '--memory=' . $options->memory,
-            '--timeout=' . $options->timeout,
-            '--sleep=' . $options->sleep,
-            '--maxTries=' . $options->maxTries,
-            defined('PHP_WINDOWS_VERSION_BUILD') ? ' > NUL' : ' > /dev/null 2>&1 &',
-        ]), $this->binPath);
+            $this->binPath . DIRECTORY_SEPARATOR . $this->scriptName,
+            (string)$job->getJobId(),
+            $job->getConnectionName(),
+            $job->getQueue(),
+            getenv('APP_ENV'),
+            $options->delay,
+            $options->memory,
+            $options->timeout,
+            $options->sleep,
+            $options->maxTries
+        );
+
+        return Process::fromShellCommandline($command);
+    }
+
+    /**
+     * Prepare command for background run
+     *
+     * @param $cmd
+     *
+     * @return string
+     */
+    protected function getBackgroundCommand(string $cmd): string
+    {
+        if (defined('PHP_WINDOWS_VERSION_BUILD')) {
+            return 'start /B ' . $cmd . ' > NUL';
+        } else {
+            return $cmd . ' > /dev/null 2>&1 &';
+        }
     }
 
     /**
