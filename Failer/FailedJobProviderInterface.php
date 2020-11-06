@@ -3,6 +3,7 @@
 namespace SfCod\QueueBundle\Failer;
 
 use Exception;
+use SfCod\QueueBundle\Entity\Job;
 
 /**
  * Interface FailedJobProviderInterface
@@ -33,20 +34,20 @@ interface FailedJobProviderInterface
     /**
      * Get a single failed job.
      *
-     * @param mixed $id
+     * @param string $id
      *
-     * @return object|null
+     * @return Job|null
      */
-    public function find($id);
+    public function find(string $id);
 
     /**
      * Delete a single failed job from storage.
      *
-     * @param mixed $id
+     * @param string $id
      *
      * @return bool
      */
-    public function forget($id);
+    public function forget(string $id);
 
     /**
      * Flush all of the failed jobs from storage.

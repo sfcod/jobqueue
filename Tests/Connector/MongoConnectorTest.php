@@ -4,9 +4,9 @@ namespace SfCod\QueueBundle\Tests\Connector;
 
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Connector\MongoConnector;
 use SfCod\QueueBundle\Queue\MongoQueue;
+use SfCod\QueueBundle\Service\MongoDriver;
 
 /**
  * Class MongoConnectorTest
@@ -23,7 +23,7 @@ class MongoConnectorTest extends TestCase
     public function testConnect()
     {
         $jobResolver = $this->createMock(JobResolverInterface::class);
-        $mongoDriver = $this->createMock(MongoDriverInterface::class);
+        $mongoDriver = $this->createMock(MongoDriver::class);
 
         $connector = new MongoConnector($jobResolver, $mongoDriver);
 

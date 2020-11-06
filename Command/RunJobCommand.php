@@ -53,6 +53,9 @@ class RunJobCommand extends Command
     /**
      * Execute command
      *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
      * @return int|void|null
      */
     public function execute(InputInterface $input, OutputInterface $output)
@@ -65,9 +68,10 @@ class RunJobCommand extends Command
             $input->getOption('maxTries')
         );
         $connection = $input->getOption('connection');
+        $queue = $input->getOption('queue');
         $jobId = $input->getArgument('id');
 
-        $this->worker->runJobById($connection, $jobId, $options);
+        $this->worker->runJobById($connection, $queue, $jobId, $options);
 
         return 0;
     }

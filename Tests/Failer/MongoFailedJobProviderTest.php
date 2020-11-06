@@ -6,9 +6,9 @@ use Exception;
 use Helmich\MongoMock\MockDatabase;
 use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
+use SfCod\QueueBundle\Service\MongoDriver;
 
 /**
  * Class MongoFailedJobProviderTest
@@ -159,7 +159,7 @@ class MongoFailedJobProviderTest extends TestCase
      */
     private function mockProvider(Database $database, string $collection): MongoFailedJobProvider
     {
-        $mongo = $this->createMock(MongoDriverInterface::class);
+        $mongo = $this->createMock(MongoDriver::class);
         $mongo
             ->expects(self::any())
             ->method('getDatabase')

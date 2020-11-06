@@ -5,8 +5,8 @@ namespace SfCod\QueueBundle\Failer;
 use Exception;
 use MongoDB\Collection;
 use MongoDB\DeleteResult;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
+use SfCod\QueueBundle\Service\MongoDriver;
 
 /**
  * Mongo provider for failed jobs
@@ -18,7 +18,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * The database connection name.
      *
-     * @var MongoDriverInterface
+     * @var MongoDriver
      */
     protected $mongo;
 
@@ -32,10 +32,10 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
     /**
      * Create a new database failed job provider.
      *
-     * @param MongoDriverInterface $mongo
+     * @param MongoDriver $mongo
      * @param string $collection
      */
-    public function __construct(MongoDriverInterface $mongo, string $collection = 'queue_jobs_failed')
+    public function __construct(MongoDriver $mongo, string $collection = 'queue_jobs_failed')
     {
         $this->mongo = $mongo;
         $this->collection = $collection;
@@ -88,7 +88,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return Job
      */
-    public function find($id)
+    public function find(string $id)
     {
         $data = $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
 
@@ -102,7 +102,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      *
      * @return bool
      */
-    public function forget($id)
+    public function forget(string $id)
     {
         $result = $this->getCollection()->deleteOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
 

@@ -4,20 +4,15 @@ namespace SfCod\QueueBundle\DependencyInjection;
 
 use Psr\Log\LoggerInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Command\RetryCommand;
 use SfCod\QueueBundle\Command\RunJobCommand;
 use SfCod\QueueBundle\Command\WorkCommand;
-use SfCod\QueueBundle\Connector\ConnectorInterface;
-use SfCod\QueueBundle\Connector\MongoConnector;
 use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
-use SfCod\QueueBundle\Failer\MongoFailedJobProvider;
 use SfCod\QueueBundle\Handler\ExceptionHandler;
 use SfCod\QueueBundle\Handler\ExceptionHandlerInterface;
 use SfCod\QueueBundle\Service\JobProcess;
 use SfCod\QueueBundle\Service\JobQueue;
 use SfCod\QueueBundle\Service\JobResolver;
-use SfCod\QueueBundle\Service\MongoDriver;
 use SfCod\QueueBundle\Service\QueueManager;
 use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -61,7 +56,6 @@ class QueueExtension extends Extension
             $container->setDefinition($job, $definition);
         }
 
-        $this->createDriver($config, $container);
         $this->createJobQueue($config, $container);
         $this->createWorker($config, $container);
         $this->createJobProcess($config, $container);
@@ -83,6 +77,8 @@ class QueueExtension extends Extension
      * @deprecated will be removed some day, use services with tag "sfcod.jobqueue.job"
      *
      * @param array $config
+     *
+     * @param ContainerBuilder $container
      *
      * @return array
      */
@@ -142,24 +138,22 @@ class QueueExtension extends Extension
      *
      * @param array $config
      * @param ContainerBuilder $container
+     *
+     * @throws \Exception
      */
     private function createManager(array $config, ContainerBuilder $container)
     {
         $resolver = new Definition(JobResolverInterface::class);
         $resolver->setClass(JobResolver::class);
 
-        $connector = new Definition(ConnectorInterface::class);
-        $connector->setClass(MongoConnector::class);
-        $connector->setArguments([
-            new Reference(JobResolverInterface::class),
-            new Reference(MongoDriverInterface::class),
-        ]);
-
         $manager = new Definition(QueueManager::class);
-        $manager->addMethodCall('addConnector', [
-            'mongo-thread',
-            new Reference(ConnectorInterface::class),
-        ]);
+
+        foreach ($config['drivers'] as $name => $service) {
+            $manager->addMethodCall('addConnector', [
+                $name,
+                new Reference(ltrim($service, '@')),
+            ]);
+        }
 
         foreach ($config['connections'] as $name => $params) {
             $manager->addMethodCall('addConnection', [
@@ -170,29 +164,8 @@ class QueueExtension extends Extension
 
         $container->addDefinitions([
             JobResolverInterface::class => $resolver,
-            ConnectorInterface::class => $connector,
             QueueManager::class => $manager,
         ]);
-    }
-
-    /**
-     * Create driver
-     *
-     * @param array $config
-     * @param ContainerBuilder $container
-     */
-    private function createDriver(array $config, ContainerBuilder $container)
-    {
-        $mongo = new Definition(MongoDriverInterface::class);
-        $mongo->setClass(MongoDriver::class);
-        $mongo->addMethodCall('setCredentials', [
-            $container->getParameter('env(MONGODB_URL)'),
-        ]);
-        $mongo->addMethodCall('setDbname', [
-            $container->getParameter('env(MONGODB_DB)'),
-        ]);
-
-        $container->setDefinition(MongoDriverInterface::class, $mongo);
     }
 
     /**
@@ -230,14 +203,6 @@ class QueueExtension extends Extension
                 new Reference(EventDispatcherInterface::class),
             ]);
 
-        $failedProvider = new Definition(FailedJobProviderInterface::class);
-        $failedProvider
-            ->setClass(MongoFailedJobProvider::class)
-            ->setArguments([
-                new Reference(MongoDriverInterface::class),
-                'queue_jobs_failed',
-            ]);
-
         $exceptionHandler = new Definition(ExceptionHandlerInterface::class);
         $exceptionHandler
             ->setClass(ExceptionHandler::class)
@@ -247,7 +212,6 @@ class QueueExtension extends Extension
 
         $container->addDefinitions([
             Worker::class => $worker,
-            FailedJobProviderInterface::class => $failedProvider,
             ExceptionHandlerInterface::class => $exceptionHandler,
         ]);
     }

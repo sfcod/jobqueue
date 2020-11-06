@@ -5,11 +5,12 @@ namespace SfCod\QueueBundle\Queue;
 use DateInterval;
 use DateTime;
 use MongoDB\Collection;
+use MongoDB\DeleteResult;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Job\JobContractInterface;
+use SfCod\QueueBundle\Service\MongoDriver;
 
 /**
  * Class MongoQueue
@@ -30,7 +31,7 @@ class MongoQueue extends Queue
     /**
      * The mongo connection instance.
      *
-     * @var MongoDriverInterface
+     * @var MongoDriver
      */
     protected $mongo;
 
@@ -63,7 +64,8 @@ class MongoQueue extends Queue
     /**
      * Create a new mongo queue instance.
      *
-     * @param MongoDriverInterface $mongo
+     * @param JobResolverInterface $resolver
+     * @param MongoDriver $mongo
      * @param string $collection
      * @param string $queue
      * @param int $expire
@@ -71,7 +73,7 @@ class MongoQueue extends Queue
      */
     public function __construct(
         JobResolverInterface $resolver,
-        MongoDriverInterface $mongo,
+        MongoDriver $mongo,
         string $collection,
         string $queue = 'default',
         int $expire = 60,
@@ -90,7 +92,7 @@ class MongoQueue extends Queue
      *
      * @param string $job
      * @param mixed $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -102,7 +104,7 @@ class MongoQueue extends Queue
     /**
      * Pop the next job off of the queue.
      *
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return null|JobContractInterface
      */
@@ -154,7 +156,7 @@ class MongoQueue extends Queue
      * @param DateInterval|int $delay
      * @param string $job
      * @param array $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -168,7 +170,7 @@ class MongoQueue extends Queue
      *
      * @param array $jobs
      * @param mixed $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -201,11 +203,12 @@ class MongoQueue extends Queue
     /**
      * Get the next available job for the queue.
      *
-     * @param $id
+     * @param string $queue
+     * @param string $id
      *
      * @return null|JobContractInterface
      */
-    public function getJobById($id): ?JobContractInterface
+    public function getJobById(string $queue, string $id): ?JobContractInterface
     {
         $job = $this->getCollection()->findOne(['_id' => new \MongoDB\BSON\ObjectID($id)]);
 
@@ -224,7 +227,7 @@ class MongoQueue extends Queue
      *
      * @return bool
      */
-    public function deleteReserved(string $queue, $id): bool
+    public function deleteReserved(string $queue, string $id): bool
     {
         $query = [
             '_id' => new \MongoDB\BSON\ObjectID($id),
@@ -263,7 +266,7 @@ class MongoQueue extends Queue
     /**
      * Get the size of the queue.
      *
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return int
      */
@@ -288,7 +291,7 @@ class MongoQueue extends Queue
         return $this->getCollection()->count([
                 'reserved' => 1,
                 'queue' => $job->getQueue(),
-            ]) < $this->limit || $job->reserved();
+            ]) < $this->limit || !$job->reserved();
     }
 
     /**

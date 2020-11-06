@@ -15,7 +15,7 @@ interface QueueInterface
     /**
      * Get the size of the queue.
      *
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return int
      */
@@ -26,7 +26,7 @@ interface QueueInterface
      *
      * @param string $job
      * @param array $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -47,7 +47,7 @@ interface QueueInterface
      * Push a raw payload onto the queue.
      *
      * @param string $payload
-     * @param string $queue
+     * @param string|null $queue
      * @param array $options
      *
      * @return mixed
@@ -60,7 +60,7 @@ interface QueueInterface
      * @param \DateTimeInterface|\DateInterval|int $delay
      * @param string $job
      * @param array $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -83,7 +83,7 @@ interface QueueInterface
      *
      * @param array $jobs
      * @param array $data
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return mixed
      */
@@ -92,7 +92,7 @@ interface QueueInterface
     /**
      * Pop the next job off of the queue.
      *
-     * @param string $queue
+     * @param string|null $queue
      *
      * @return JobContractInterface|null
      */
@@ -128,7 +128,7 @@ interface QueueInterface
     /**
      * Check if job can be runned.
      *
-     * @param JobContract $job
+     * @param JobContractInterface $job
      *
      * @return bool
      */
@@ -137,11 +137,12 @@ interface QueueInterface
     /**
      * Get job by id
      *
-     * @param $id
+     * @param string $queue
+     * @param string $id
      *
      * @return null|JobContractInterface
      */
-    public function getJobById($id): ?JobContractInterface;
+    public function getJobById(string $queue, string $id): ?JobContractInterface;
 
     /**
      * Mark job as reserved
@@ -160,7 +161,7 @@ interface QueueInterface
      *
      * @return bool
      */
-    public function deleteReserved(string $queue, $id): bool;
+    public function deleteReserved(string $queue, string $id): bool;
 
     /**
      * Release a reserved job back onto the queue.

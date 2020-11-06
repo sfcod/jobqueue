@@ -140,14 +140,15 @@ class Worker
      * Process the next job on the queue.
      *
      * @param string $connectionName
-     * @param $id
+     * @param string $queue
+     * @param string $id
      * @param Options $options
      */
-    public function runJobById(string $connectionName, $id, Options $options)
+    public function runJobById(string $connectionName, string $queue, string $id, Options $options)
     {
         try {
             $connection = $this->queueManager->connection($connectionName);
-            $job = $connection->getJobById($id);
+            $job = $connection->getJobById($queue, $id);
 
             // If we're able to pull a job off of the stack, we will process it and then return
             // from this method. If there is no job on the queue, we will "sleep" the worker

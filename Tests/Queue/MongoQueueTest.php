@@ -6,11 +6,11 @@ use Helmich\MongoMock\MockDatabase;
 use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
+use SfCod\QueueBundle\Service\MongoDriver;
 
 /**
  * Class MongoQueueTest
@@ -377,7 +377,7 @@ class MongoQueueTest extends TestCase
     private function mockMongoQueue(Database $database, string $collection): MongoQueue
     {
         $jobResolver = $this->createMock(JobResolverInterface::class);
-        $mongo = $this->createMock(MongoDriverInterface::class);
+        $mongo = $this->createMock(MongoDriver::class);
         $mongo
             ->expects(self::any())
             ->method('getDatabase')

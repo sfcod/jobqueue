@@ -57,9 +57,7 @@ abstract class Queue implements QueueInterface
      *
      * @param array $jobs
      * @param array $data
-     * @param string $queue
-     *
-     * @return mixed
+     * @param string|null $queue
      */
     public function bulk(array $jobs, array $data = [], ?string $queue = null)
     {
