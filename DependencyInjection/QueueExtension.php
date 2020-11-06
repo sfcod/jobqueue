@@ -77,7 +77,6 @@ class QueueExtension extends Extension
      * @deprecated will be removed some day, use services with tag "sfcod.jobqueue.job"
      *
      * @param array $config
-     *
      * @param ContainerBuilder $container
      *
      * @return array

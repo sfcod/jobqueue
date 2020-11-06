@@ -140,7 +140,7 @@ interface QueueInterface
      * @param string $queue
      * @param string $id
      *
-     * @return null|JobContractInterface
+     * @return JobContractInterface|null
      */
     public function getJobById(string $queue, string $id): ?JobContractInterface;
 

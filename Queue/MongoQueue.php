@@ -106,7 +106,7 @@ class MongoQueue extends Queue
      *
      * @param string|null $queue
      *
-     * @return null|JobContractInterface
+     * @return JobContractInterface|null
      */
     public function pop(?string $queue = null): ?JobContractInterface
     {
@@ -206,7 +206,7 @@ class MongoQueue extends Queue
      * @param string $queue
      * @param string $id
      *
-     * @return null|JobContractInterface
+     * @return JobContractInterface|null
      */
     public function getJobById(string $queue, string $id): ?JobContractInterface
     {
@@ -361,7 +361,7 @@ class MongoQueue extends Queue
      *
      * @param string|null $queue
      *
-     * @return null|JobContractInterface
+     * @return JobContractInterface|null
      */
     protected function getNextAvailableJob($queue)
     {

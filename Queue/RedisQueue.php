@@ -15,7 +15,9 @@ use SfCod\QueueBundle\Service\RedisDriver;
 
 /**
  * Class RedisQueue
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Queue
  */
 class RedisQueue extends Queue
@@ -77,8 +79,7 @@ class RedisQueue extends Queue
         string $queue = 'default',
         int $expire = 60,
         int $limit = 15
-    )
-    {
+    ) {
         $this->resolver = $resolver;
         $this->redis = $redis;
         $this->collection = $collection;
@@ -107,6 +108,7 @@ class RedisQueue extends Queue
      * @param string|null $queue
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function push(string $job, array $data = [], ?string $queue = null)
@@ -122,6 +124,7 @@ class RedisQueue extends Queue
      * @param array $options
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function pushRaw(string $payload, ?string $queue = null, array $options = [])
@@ -138,6 +141,7 @@ class RedisQueue extends Queue
      * @param string|null $queue
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function later($delay, string $job, array $data = [], ?string $queue = null)
@@ -150,7 +154,7 @@ class RedisQueue extends Queue
      *
      * @param string|null $queue
      *
-     * @return null|JobContractInterface
+     * @return JobContractInterface|null
      */
     public function pop(?string $queue = null): ?JobContractInterface
     {
@@ -218,7 +222,7 @@ class RedisQueue extends Queue
      * @param string $queue
      * @param string $id
      *
-     * @return null|JobContractInterface
+     * @return JobContractInterface|null
      */
     public function getJobById(string $queue, string $id): ?JobContractInterface
     {
@@ -262,6 +266,7 @@ class RedisQueue extends Queue
      * @param string $id
      *
      * @return bool
+     *
      * @throws \Exception
      */
     public function deleteReserved(string $queue, string $id): bool
@@ -283,6 +288,7 @@ class RedisQueue extends Queue
      * @param DateInterval|int $delay
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function release(JobContractInterface $job, $delay)
@@ -300,7 +306,7 @@ class RedisQueue extends Queue
      */
     private function buildKey(?string $queue = 'default', ?string $postfix = null)
     {
-        return "$this->collection:$queue" . ($postfix ? ":$postfix" : "");
+        return "$this->collection:$queue" . ($postfix ? ":$postfix" : '');
     }
 
     /**

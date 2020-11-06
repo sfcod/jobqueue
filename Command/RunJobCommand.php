@@ -2,7 +2,6 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use Psr\Log\LoggerInterface;
 use SfCod\QueueBundle\Worker\Options;
 use SfCod\QueueBundle\Worker\Worker;
 use Symfony\Component\Console\Command\Command;
@@ -24,6 +23,7 @@ class RunJobCommand extends Command
 
     /**
      * RunJobCommand constructor.
+     *
      * @param Worker $worker
      */
     public function __construct(Worker $worker)

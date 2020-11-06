@@ -6,7 +6,9 @@ use Predis\Client;
 
 /**
  * Class RedisDriver
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\Service
  */
 class RedisDriver

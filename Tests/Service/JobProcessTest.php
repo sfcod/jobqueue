@@ -47,7 +47,7 @@ class JobProcessTest extends TestCase
 
         $process = $jobProcess->getProcess($job, new Options());
 
-        $command = sprintf("'%s' '%s' 'job-queue:run-job' '%s' '--connection=%s' '--queue=%s' '--env=%s' '--delay=0' '--memory=128' '--timeout=60' '--sleep=3' '--maxTries=0' ' > /dev/null 2>&1 &'", 'php', $scriptName, $job->getJobId(), $connectionName, $job->getQueue(), 'prod');
+        $command = sprintf('%s %s job-queue:run-job %s --connection=%s --queue=%s --env=%s --delay=0 --memory=128 --timeout=60 --sleep=3 --maxTries=0 > /dev/null 2>&1 &', 'php', $binPath . DIRECTORY_SEPARATOR . $scriptName, $job->getJobId(), $connectionName, $job->getQueue(), 'prod');
 
         self::assertEquals($command, $process->getCommandLine());
     }

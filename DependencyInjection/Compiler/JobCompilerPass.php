@@ -3,14 +3,15 @@
 namespace SfCod\QueueBundle\DependencyInjection\Compiler;
 
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Service\JobQueue;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Class JobCompilerPass
+ *
  * @author Virchenko Maksim <muslim1992@gmail.com>
+ *
  * @package SfCod\QueueBundle\DependencyInjection\Compiler
  */
 class JobCompilerPass implements CompilerPassInterface

@@ -4,6 +4,7 @@ namespace SfCod\QueueBundle\Base;
 
 /**
  * Trait RandomizeTrait
+ *
  * @package SfCod\QueueBundle\Base
  */
 trait RandomizeTrait

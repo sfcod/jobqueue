@@ -49,7 +49,7 @@ class MongoFailedJobProvider implements FailedJobProviderInterface
      * @param string $payload
      * @param Exception $exception
      *
-     * @return int|null|void
+     * @return int|void|null
      */
     public function log(string $connection, string $queue, string $payload, Exception $exception)
     {

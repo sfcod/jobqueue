@@ -87,7 +87,7 @@ class MongoDriver
     /**
      * Get mongo database
      *
-     * @param null|string $name
+     * @param string|null $name
      *
      * @return Database
      */

@@ -20,6 +20,7 @@ $config = PhpCsFixer\Config::create()
         'ordered_imports' => true,
         'array_syntax' => ['syntax' => 'short'],
         'self_accessor' => false,
+        'no_superfluous_phpdoc_tags' => false,
     ])
     ->setFinder($finder);
 return $config;

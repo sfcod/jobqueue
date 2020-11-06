@@ -234,7 +234,7 @@ class MongoQueueTest extends TestCase
 
         $job = $database->selectCollection($collection)->findOne();
 
-        $jobContract = $mongoQueue->getJobById($job->_id);
+        $jobContract = $mongoQueue->getJobById('default', $job->_id);
 
         self::assertInstanceOf(JobContractInterface::class, $jobContract);
         self::assertEquals($jobContract->getName(), $jobName);
@@ -329,7 +329,7 @@ class MongoQueueTest extends TestCase
         $job = $database->selectCollection($collection)->findOne();
 
         /** @var JobContractInterface $jobContract */
-        $jobContract = $mongoQueue->getJobById($job->_id);
+        $jobContract = $mongoQueue->getJobById('default', $job->_id);
 
         $canRun = $mongoQueue->canRunJob($jobContract);
 
@@ -355,7 +355,7 @@ class MongoQueueTest extends TestCase
         $attempts = $job->attempts;
 
         /** @var JobContractInterface $jobContract */
-        $jobContract = $mongoQueue->getJobById($job->_id);
+        $jobContract = $mongoQueue->getJobById('default', $job->_id);
 
         $mongoQueue->markJobAsReserved($jobContract);
 
