@@ -17,6 +17,13 @@ interface JobContractInterface
     public function reserved(): bool;
 
     /**
+     * Get reserved at
+     *
+     * @return int|null
+     */
+    public function reservedAt(): ?int;
+
+    /**
      * Get the job identifier.
      *
      * @return string

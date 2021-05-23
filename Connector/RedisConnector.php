@@ -3,17 +3,16 @@
 namespace SfCod\QueueBundle\Connector;
 
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Queue\MongoQueue;
 use SfCod\QueueBundle\Queue\QueueInterface;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Queue\RedisQueue;
+use SfCod\QueueBundle\Service\RedisDriver;
 
 /**
- * Connector for queue to mongodb
+ * Connector for queue to redis
  *
- * @author Orlov Aleksey <aaorlov88@gmail.com>
  * @author Virchenko Maksim <muslim1992@gmail.com>
  */
-class MongoConnector implements ConnectorInterface
+class RedisConnector implements ConnectorInterface
 {
     /**
      * @var JobResolverInterface
@@ -21,20 +20,20 @@ class MongoConnector implements ConnectorInterface
     protected $jobResolver;
 
     /**
-     * @var MongoDriver
+     * @var RedisDriver
      */
-    protected $mongo;
+    protected $redis;
 
     /**
-     * MongoConnector constructor.
+     * RedisConnector constructor.
      *
      * @param JobResolverInterface $jobResolver
-     * @param MongoDriver $mongo
+     * @param RedisDriver $redis
      */
-    public function __construct(JobResolverInterface $jobResolver, MongoDriver $mongo)
+    public function __construct(JobResolverInterface $jobResolver, RedisDriver $redis)
     {
         $this->jobResolver = $jobResolver;
-        $this->mongo = $mongo;
+        $this->redis = $redis;
     }
 
     /**
@@ -50,15 +49,13 @@ class MongoConnector implements ConnectorInterface
             'limit' => 15,
         ], $config);
 
-        $queue = new MongoQueue(
+        return new RedisQueue(
             $this->jobResolver,
-            $this->mongo,
+            $this->redis,
             $config['collection'],
             $config['queue'],
             $config['expire'],
             $config['limit']
         );
-
-        return $queue;
     }
 }

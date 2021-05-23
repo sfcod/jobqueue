@@ -4,7 +4,6 @@ namespace SfCod\QueueBundle\Service;
 
 use MongoDB\Client;
 use MongoDB\Database;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 
 /**
  * Class MongoDriver
@@ -14,7 +13,7 @@ use SfCod\QueueBundle\Base\MongoDriverInterface;
  *
  * @package SfCod\QueueBundle\Service
  */
-class MongoDriver implements MongoDriverInterface
+class MongoDriver
 {
     /**
      * @var string
@@ -68,7 +67,7 @@ class MongoDriver implements MongoDriverInterface
     /**
      * Set client
      *
-     * @param MongoDB\Client $client
+     * @param \MongoDB\Client $client
      */
     public function setClient(Client $client)
     {
@@ -88,7 +87,7 @@ class MongoDriver implements MongoDriverInterface
     /**
      * Get mongo database
      *
-     * @param null|string $name
+     * @param string|null $name
      *
      * @return Database
      */

@@ -119,9 +119,9 @@ class Job
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getReservedAt(): int
+    public function getReservedAt(): ?int
     {
         return $this->reservedAt;
     }

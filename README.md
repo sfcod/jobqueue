@@ -5,16 +5,20 @@ Job Queue Bundle for Symfony
 
 Provides async queues implementation for Symfony (using mongodb as main storage).
 
+#### Supported drivers (storages):
+- [MongoDB](Doc/mongodb.md)
+- [Redis](Doc/redis.md)
+- [Custom](Doc/custom.md)
+
 #### Config:
+Register the bundle config and all available "Jobs"
 ```yaml
 sfcod_queue:
+    drivers:
+        redis: 'SfCod\QueueBundle\Connector\RedisConnector'
     connections:
-        default: { driver: 'mongo-thread', collection: 'queue_jobs', queue: 'default', expire: 60, limit: 2 }
-    namespaces:
-        - 'App\Job'        
-```
-OR instead of namespaces you can use instanceof or direct service autowiring
-```yaml
+        default: { driver: 'redis', collection: 'queue_jobs', queue: 'default', expire: 360, limit: 2 }  
+
 services:
 #    _instanceof:
 #        SfCod\QueueBundle\Base\JobInterface:
@@ -23,18 +27,18 @@ services:
         resource: '../src/Job/*'
         tags: ['sfcod.jobqueue.job']
 ```
-namespaces - is not required. You can set here all namespace where your job classes are, otherwise all services with tag 'sfcod.jobqueue.job' will be fetched from symfony container.
-connection - is not required. If it is not set, bundle will use this service SfCod\QueueBundle\Base\MongoDriverInterface::class as default.
 
-#### Adding jobs to queue:
+#### Adding jobs to the queue:
 
-Create your own handler which implements SfCod\QueueBundle\Base\JobInterface 
+Create your own "job" which implements SfCod\QueueBundle\Base\JobInterface and run it: 
 
 ```php
-$jobQueue->push(your_job_handler_service, $data);
+public function someFunc(JobQueue $jobQueue) {
+    $data = [...];
+    $jobQueue->push(YourJob::class, $data);
+}
 ```
-
-$data - additional data for your job
+where $data is a payload for your job
 
 #### Commands:
 
@@ -61,22 +65,16 @@ Where:
 
 #### Configurable services list (with default parameters):
 
-##### Main services:
+##### JobQueue:
 ```yaml
 SfCod\QueueBundle\Service\JobQueue:
     public: true
     arguments:
         - '@SfCod\QueueBundle\Service\QueueManager'
 ```
-SfCod\QueueBundle\Service\JobQueue: main job queue service.
+SfCod\QueueBundle\Service\JobQueue: main job queue service
 
-```yaml
-SfCod\QueueBundle\Service\QueueManager:
-    calls: 
-        - [addConnector, ['mongo-thread', '@SfCod\QueueBundle\Connector\ConnectorInterface']]
-```
-SfCod\QueueBundle\Service\QueueManager: queue manager which holds connectors and connections.
-
+##### Worker
 ```yaml
 SfCod\QueueBundle\Worker\Worker:
     arguments:
@@ -86,8 +84,9 @@ SfCod\QueueBundle\Worker\Worker:
         - '@SfCod\QueueBundle\Handler\ExceptionHandlerInterface'
         - '@Symfony\Component\EventDispatcher\EventDispatcherInterface'
 ```
-SfCod\QueueBundle\Worker\Worker: main worker service.
+SfCod\QueueBundle\Worker\Worker: async worker for "work" command
 
+##### JobProcess
 ```yaml
 SfCod\QueueBundle\Service\JobProcess:
     arguments:
@@ -95,8 +94,8 @@ SfCod\QueueBundle\Service\JobProcess:
         - '%kernel.project_dir%/bin'
         - 'php'
         - ''
-```
-SfCod\QueueBundle\Service\JobProcess: default config for jobs command processor in async queues, where: 
+``` 
+JobProcess: default config for jobs command processor in async queues, where:
 - 'console' - name of console command 
 - '%kernel.project_dir%/bin' - path for console command
 - 'php' - binary script
@@ -105,12 +104,22 @@ SfCod\QueueBundle\Service\JobProcess: default config for jobs command processor 
 ##### Connector
 ```yaml
 SfCod\QueueBundle\Connector\ConnectorInterface:
-    class: SfCod\QueueBundle\Connector\MongoConnector
+    class: SfCod\QueueBundle\Connector\RedisConnector
     arguments:
         - '@SfCod\QueueBundle\Base\JobResolverInterface'
-        - '@SfCod\QueueBundle\Base\MongoDriverInterface'
+        - '@SfCod\QueueBundle\Base\RedisDriver'
 ```
-SfCod\QueueBundle\Connector\ConnectorInterface: connector for queues' database.
+SfCod\QueueBundle\Connector\ConnectorInterface: connector for queues' database
+
+##### Failer
+```yaml
+SfCod\QueueBundle\Failer\FailedJobProviderInterface:
+    class: SfCod\QueueBundle\Failer\RedisFailedJobProvider
+    arguments:
+        - '@SfCod\QueueBundle\Service\RedisDriver'
+        - 'queue_jobs_failed'
+```
+SfCod\QueueBundle\Failer\FailedJobProviderInterface: storage for failed jobs
 
 ##### Job resolver
 ```yaml
@@ -121,18 +130,6 @@ SfCod\QueueBundle\Base\JobResolverInterface:
 ```
 SfCod\QueueBundle\Base\JobResolverInterface: resolver for jobs, it builds job using job's display name, for default jobs fetches from container as a public services.
 
-##### Failed jobs provider
-```yaml
-SfCod\QueueBundle\Failer\FailedJobProviderInterface:
-    class: SfCod\QueueBundle\Failer\MongoFailedJobProvider
-    arguments:
-        - '@SfCod\QueueBundle\Base\MongoDriverInterface'
-        - 'queue_jobs_failed'
-```
-SfCod\QueueBundle\Failer\FailedJobProviderInterface: failer service for failed jobs processing, where:
-- SfCod\QueueBundle\Base\MongoDriverInterface - mongo driver
-- 'queue_jobs_failed' - name of mongo collection
-
 ##### Exception handler
 ```yaml
 SfCod\QueueBundle\Handler\ExceptionHandlerInterface:
@@ -142,34 +139,7 @@ SfCod\QueueBundle\Handler\ExceptionHandlerInterface:
 ```
 SfCod\QueueBundle\Handler\ExceptionHandlerInterface: main exception handler, used for logging issues
 
-##### Mongo driver config:
-
-```yaml
-SfCod\QueueBundle\Base\MongoDriverInterface:
-    class: SfCod\QueueBundle\Service\MongoDriver
-    calls:
-        - [setCredentials, ['%env(MONGODB_URL)%']]
-        - [setDbname, ['%env(MONGODB_NAME)%']]
-```
-SfCod\QueueBundle\Base\MongoDriverInterface: default config for mongo driver connection
-
-##### New connector:
-
-If you want to change default connector, you can override SfCod\QueueBundle\Connector\ConnectorInterface or add method call:
-```yaml
-SfCod\QueueBundle\Service\QueueManager:
-    calls: 
-        - [addConnector, ['your-connector', '@your.service']]
-```
-where 'your.service' must implement SfCod\QueueBundle\Connector\ConnectorInterface and then all your connections with driver 'your-connector' will be processed using new connector, for example:
-```yaml
-sfcod_queue:
-    connections:
-        default: { driver: 'your-connector', collection: 'queue_jobs' queue: 'default', expire: 60, limit: 2 }
-```
-
 ##### Testing:
-
 You can run tests using prepared configuration xml file:
 ```php
 php bin/phpunit --configuration ./vendor/sfcod/jobqueue/phpunit.xml.dist --bootstrap ./vendor/autoload.php

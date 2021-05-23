@@ -19,7 +19,7 @@ class SfCodQueueBundle extends Bundle
     /**
      * Get bundle extension
      *
-     * @return null|QueueExtension|\Symfony\Component\DependencyInjection\Extension\ExtensionInterface
+     * @return QueueExtension|\Symfony\Component\DependencyInjection\Extension\ExtensionInterface|null
      */
     public function getContainerExtension()
     {

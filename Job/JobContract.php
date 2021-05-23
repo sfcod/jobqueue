@@ -89,7 +89,7 @@ class JobContract implements JobContractInterface
      *
      * @param JobResolverInterface $resolver
      * @param QueueInterface $database
-     * @param StdClass|MongoDB\Model\BSONDocument $job
+     * @param Job $job
      */
     public function __construct(JobResolverInterface $resolver, QueueInterface $database, Job $job)
     {
@@ -304,9 +304,9 @@ class JobContract implements JobContractInterface
     /**
      * Get reserved at time
      *
-     * @return int
+     * @return int|null
      */
-    public function reservedAt(): int
+    public function reservedAt(): ?int
     {
         return $this->job->getReservedAt();
     }

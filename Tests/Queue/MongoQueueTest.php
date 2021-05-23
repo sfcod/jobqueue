@@ -6,11 +6,11 @@ use Helmich\MongoMock\MockDatabase;
 use MongoDB\Database;
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Job\JobContract;
 use SfCod\QueueBundle\Job\JobContractInterface;
 use SfCod\QueueBundle\Queue\MongoQueue;
+use SfCod\QueueBundle\Service\MongoDriver;
 
 /**
  * Class MongoQueueTest
@@ -234,7 +234,7 @@ class MongoQueueTest extends TestCase
 
         $job = $database->selectCollection($collection)->findOne();
 
-        $jobContract = $mongoQueue->getJobById($job->_id);
+        $jobContract = $mongoQueue->getJobById('default', $job->_id);
 
         self::assertInstanceOf(JobContractInterface::class, $jobContract);
         self::assertEquals($jobContract->getName(), $jobName);
@@ -329,7 +329,7 @@ class MongoQueueTest extends TestCase
         $job = $database->selectCollection($collection)->findOne();
 
         /** @var JobContractInterface $jobContract */
-        $jobContract = $mongoQueue->getJobById($job->_id);
+        $jobContract = $mongoQueue->getJobById('default', $job->_id);
 
         $canRun = $mongoQueue->canRunJob($jobContract);
 
@@ -355,7 +355,7 @@ class MongoQueueTest extends TestCase
         $attempts = $job->attempts;
 
         /** @var JobContractInterface $jobContract */
-        $jobContract = $mongoQueue->getJobById($job->_id);
+        $jobContract = $mongoQueue->getJobById('default', $job->_id);
 
         $mongoQueue->markJobAsReserved($jobContract);
 
@@ -377,7 +377,7 @@ class MongoQueueTest extends TestCase
     private function mockMongoQueue(Database $database, string $collection): MongoQueue
     {
         $jobResolver = $this->createMock(JobResolverInterface::class);
-        $mongo = $this->createMock(MongoDriverInterface::class);
+        $mongo = $this->createMock(MongoDriver::class);
         $mongo
             ->expects(self::any())
             ->method('getDatabase')

@@ -2,7 +2,6 @@
 
 namespace SfCod\QueueBundle\Command;
 
-use SfCod\QueueBundle\Base\MongoDriverInterface;
 use SfCod\QueueBundle\Entity\Job;
 use SfCod\QueueBundle\Failer\FailedJobProviderInterface;
 use SfCod\QueueBundle\Service\JobQueue;
@@ -33,6 +32,9 @@ class RetryCommand extends Command
 
     /**
      * RetryCommand constructor.
+     *
+     * @param JobQueue $queue
+     * @param FailedJobProviderInterface $failer
      */
     public function __construct(JobQueue $queue, FailedJobProviderInterface $failer)
     {
@@ -55,6 +57,9 @@ class RetryCommand extends Command
     /**
      * Execute command
      *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
      * @return int|void|null
      */
     public function execute(InputInterface $input, OutputInterface $output)
@@ -70,9 +75,12 @@ class RetryCommand extends Command
             }
         } else {
             $job = $this->failer->find($input->getOption('id'));
-            $this->retryJob($job);
 
-            ++$jobsCount;
+            if ($job) {
+                $this->retryJob($job);
+
+                ++$jobsCount;
+            }
         }
 
         $io->success(sprintf("[%d] job(s) has been released.\n", $jobsCount));
@@ -82,6 +90,10 @@ class RetryCommand extends Command
 
     /**
      * Retry job
+     *
+     * @param Job $job
+     *
+     * @return bool
      */
     protected function retryJob(Job $job): bool
     {

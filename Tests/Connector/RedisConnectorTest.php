@@ -4,18 +4,18 @@ namespace SfCod\QueueBundle\Tests\Connector;
 
 use PHPUnit\Framework\TestCase;
 use SfCod\QueueBundle\Base\JobResolverInterface;
-use SfCod\QueueBundle\Connector\MongoConnector;
-use SfCod\QueueBundle\Queue\MongoQueue;
-use SfCod\QueueBundle\Service\MongoDriver;
+use SfCod\QueueBundle\Connector\RedisConnector;
+use SfCod\QueueBundle\Queue\RedisQueue;
+use SfCod\QueueBundle\Service\RedisDriver;
 
 /**
- * Class MongoConnectorTest
+ * Class RedisConnectorTest
  *
  * @author Virchenko Maksim <muslim1992@gmail.com>
  *
  * @package SfCod\QueueBundle\Tests\Connector
  */
-class MongoConnectorTest extends TestCase
+class RedisConnectorTest extends TestCase
 {
     /**
      * Test connect
@@ -23,9 +23,9 @@ class MongoConnectorTest extends TestCase
     public function testConnect()
     {
         $jobResolver = $this->createMock(JobResolverInterface::class);
-        $mongoDriver = $this->createMock(MongoDriver::class);
+        $mongoDriver = $this->createMock(RedisDriver::class);
 
-        $connector = new MongoConnector($jobResolver, $mongoDriver);
+        $connector = new RedisConnector($jobResolver, $mongoDriver);
 
         $config = [
             'collection' => uniqid('collection_'),
@@ -36,6 +36,6 @@ class MongoConnectorTest extends TestCase
 
         $queue = $connector->connect($config);
 
-        self::assertInstanceOf(MongoQueue::class, $queue);
+        self::assertInstanceOf(RedisQueue::class, $queue);
     }
 }

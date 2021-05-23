@@ -57,9 +57,7 @@ abstract class Queue implements QueueInterface
      *
      * @param array $jobs
      * @param array $data
-     * @param string $queue
-     *
-     * @return mixed
+     * @param string|null $queue
      */
     public function bulk(array $jobs, array $data = [], ?string $queue = null)
     {
@@ -83,9 +81,7 @@ abstract class Queue implements QueueInterface
         $payload = json_encode($this->createPayloadArray($job, $data));
 
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new InvalidPayloadException(
-                'Unable to JSON encode payload. Error code: ' . json_last_error()
-            );
+            throw new InvalidPayloadException('Unable to JSON encode payload. Error code: ' . json_last_error());
         }
 
         return $payload;

@@ -82,7 +82,7 @@ class JobProcess
             (string)$job->getJobId(),
             $job->getConnectionName(),
             $job->getQueue(),
-            getenv('APP_ENV'),
+            $this->environment,
             $options->delay,
             $options->memory,
             $options->timeout,

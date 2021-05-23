@@ -5,7 +5,6 @@ namespace SfCod\QueueBundle\Service;
 use SfCod\QueueBundle\Base\JobInterface;
 use SfCod\QueueBundle\Base\JobResolverInterface;
 use SfCod\QueueBundle\Exception\JobNotFoundException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class JobResolver
