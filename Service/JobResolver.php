@@ -37,7 +37,7 @@ class JobResolver implements JobResolverInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * @param string $id
      * @param JobInterface $job
