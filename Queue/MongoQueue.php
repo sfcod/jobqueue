@@ -291,7 +291,7 @@ class MongoQueue extends Queue
         return $this->getCollection()->count([
                 'reserved' => 1,
                 'queue' => $job->getQueue(),
-            ]) < $this->limit || !$job->reserved();
+            ]) < $this->limit || $job->reserved();
     }
 
     /**
