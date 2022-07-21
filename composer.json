@@ -14,12 +14,6 @@
             "role": "Developer"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/petlabUser/jobqueue.git"
-        }
-    ],
     "require": {
         "php": "^7.1 || ^8.0",
         "symfony/framework-bundle": "^4.4 || ^5.0",
