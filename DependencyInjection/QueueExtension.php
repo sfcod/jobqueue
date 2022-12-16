@@ -85,7 +85,7 @@ class QueueExtension extends Extension
     {
         $jobs = [];
         foreach ($config['namespaces'] as $key => $namespace) {
-            $alias = $container->getParameter('kernel.root_dir') . '/../' . str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, '\\'));
+            $alias = $container->getParameter('kernel.project_dir') . '/../' . str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, '\\'));
 
             foreach (glob(sprintf('%s/**.php', $alias)) as $file) {
                 $className = sprintf('%s\%s', $namespace, basename($file, '.php'));

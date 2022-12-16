@@ -30,9 +30,8 @@ trait LoadTrait
     {
         $extension = new QueueExtension();
         $container = new ContainerBuilder();
-        $container->setParameter('kernel.project_dir', '');
         $container->setParameter('kernel.environment', 'prod');
-        $container->setParameter('kernel.root_dir', realpath(__DIR__ . '/../../../../SfCod/'));
+        $container->setParameter('kernel.project_dir', realpath(__DIR__ . '/../../../../SfCod/'));
         $container->set(LoggerInterface::class, new Logger('test'));
 
         $extension->load([
