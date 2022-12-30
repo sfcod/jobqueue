@@ -23,7 +23,7 @@ class JobQueueTest extends TestCase
     /**
      * Set up test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->configure();
     }
