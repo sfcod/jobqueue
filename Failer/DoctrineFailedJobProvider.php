@@ -65,7 +65,7 @@ class DoctrineFailedJobProvider implements FailedJobProviderInterface
         $this->connection->insert($this->table, [
             'connection' => $connection,
             'queue' => $queue,
-            'payload' => $payload,
+            'payload' => sprintf('\'%s\'', $payload),
             'exception' => $exception->getMessage(),
             'failed_at' => (new \DateTime())->getTimestamp(),
         ]);
@@ -158,11 +158,11 @@ class DoctrineFailedJobProvider implements FailedJobProviderInterface
     {
         $job = new Job();
         $job->setId($data['id']);
-        $job->setQueue($data['queue']);
+        $job->setQueue($data['queue'] ?? 'default');
         $job->setAttempts($data['attempts'] ?? 0);
         $job->setReserved($data['reserved'] ?? 0);
         $job->setReservedAt($data['reserved_at'] ?? null);
-        $job->setPayload(json_decode($data['payload'], true));
+        $job->setPayload(json_decode(trim($data['payload'], "'"), true));
 
         return $job;
     }

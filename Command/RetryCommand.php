@@ -100,7 +100,7 @@ class RetryCommand extends Command
         $payload = $job->getPayload();
 
         if ($payload && isset($payload['job'], $payload['data'])) {
-            $this->queue->push($payload['job'], $payload['data']);
+            $this->queue->push($payload['job'], $payload['data'], $job->getQueue() ?? 'default');
             $this->failer->forget($job->getId());
 
             return true;

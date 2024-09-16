@@ -89,7 +89,7 @@ class DoctrineQueue extends Queue
 
     public function release(JobContractInterface $job, $delay)
     {
-        return $this->pushToDatabase($delay, $job->getQueue(), json_encode($job->payload()), $job->attempts());
+        return $this->pushToDatabase($delay, $job->getQueue(), sprintf('\'%s\'', json_encode($job->payload())), $job->attempts());
     }
 
     public function exists(string $job, array $data = [], ?string $queue = null): bool
