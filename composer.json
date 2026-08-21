@@ -26,7 +26,11 @@
         "friendsofphp/php-cs-fixer": "^2.8 || ^3.0",
         "helmich/mongomock": "^2.7.0",
         "phpunit/phpunit": "^9.5",
-        "predis/predis": "^2.0"
+        "predis/predis": "^2.0",
+        "doctrine/dbal": "^3.4 || ^4.0"
+    },
+    "suggest": {
+        "doctrine/dbal": "Required to use DoctrineQueue / DoctrineFailedJobProvider"
     },
     "autoload": {
         "psr-4": {

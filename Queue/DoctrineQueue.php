@@ -171,8 +171,10 @@ class DoctrineQueue extends Queue
             ->from($this->table)
             ->where('queue = :queue')
             ->andWhere('reserved_at IS NULL OR reserved_at <= :expired_at')
+            ->andWhere('available_at <= :available_at')
             ->setParameter('queue', $queue)
             ->setParameter('expired_at', $this->currentTime() - $this->expire)
+            ->setParameter('available_at', $this->currentTime())
             ->setMaxResults(1)
             ->orderBy('id', 'ASC');
 
@@ -243,7 +245,7 @@ class DoctrineQueue extends Queue
     protected function getAvailableAt($delay)
     {
         return $delay instanceof DateInterval
-            ? (new DateTime())->add($delay)->getTimestamp()
+            ? (new DateTime('@' . $this->currentTime()))->add($delay)->getTimestamp()
             : $this->currentTime() + $delay;
     }
 }
