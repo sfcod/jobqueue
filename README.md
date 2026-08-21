@@ -144,3 +144,19 @@ You can run tests using prepared configuration xml file:
 ```php
 php bin/phpunit --configuration ./vendor/sfcod/jobqueue/phpunit.xml.dist --bootstrap ./vendor/autoload.php
 ```
+
+Running the bundle's own test suite without a local PHP installation (Docker, from the repository root):
+```bash
+# 1. Install dependencies (once). The composer:2 image ships PHP with pdo_sqlite but without ext-mongodb,
+#    which helmich/mongomock requires — hence --ignore-platform-reqs. Doctrine tests do not need it.
+docker run --rm -v "$PWD":/app -w /app composer:2 \
+  composer install --no-interaction --ignore-platform-reqs
+
+# 2. Run a single test file
+docker run --rm -v "$PWD":/app -w /app composer:2 \
+  php vendor/bin/phpunit --bootstrap vendor/autoload.php Tests/Queue/DoctrineQueueTest.php
+
+# 3. Run the whole suite
+docker run --rm -v "$PWD":/app -w /app composer:2 \
+  php vendor/bin/phpunit --bootstrap vendor/autoload.php --do-not-cache-result
+```
